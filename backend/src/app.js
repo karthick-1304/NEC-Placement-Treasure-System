@@ -25,20 +25,7 @@ app.use(cors({
   credentials: true,
 }));
 
-// Rate limiting
-// const limiter = rateLimit({
-//   windowMs: 15 * 60 * 1000,
-//   max: 100,
-//   message: { status: 'fail', message: 'Too many requests from this IP. Please try again after 15 minutes.' },
-// });
-// const authLimiter = rateLimit({
-//   windowMs: 15 * 60 * 1000,
-//   max: 10,
-//   message: { status: 'fail', message: 'Too many auth attempts. Please try again after 15 minutes.' },
-// });
-
-// app.use('/api', limiter);
-// app.use('/api/auth', authLimiter);
+// testing - removing comments
 
 // Body parsers
 app.use(express.json({ limit: '10kb' }));
