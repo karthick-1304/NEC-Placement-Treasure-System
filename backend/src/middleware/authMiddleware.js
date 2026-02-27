@@ -6,12 +6,12 @@ import catchAsync from "../utils/catchAsync.js";
 import { query } from "../utils/db.js";
 
 /**
- * Protect routes (Authentication)
+ * 🔐 Protect Routes (Authentication Middleware)
  */
-const protect = catchAsync(async (req, res, next) => {
+export const protect = catchAsync(async (req, res, next) => {
   let token;
 
-  // 1️⃣ Get token from header or cookies
+  // 1️⃣ Extract token
   if (req.headers.authorization?.startsWith("Bearer")) {
     token = req.headers.authorization.split(" ")[1];
   } else if (req.cookies?.jwt) {
@@ -27,12 +27,25 @@ const protect = catchAsync(async (req, res, next) => {
     );
   }
 
-  // 2️⃣ Verify token
-  const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  let decoded;
+
+  // 2️⃣ Verify JWT
+  try {
+    decoded = jwt.verify(token, process.env.JWT_SECRET);
+  } catch (err) {
+    return next(
+      new AppError("Invalid or expired token. Please log in again.", 401)
+    );
+  }
 
   // 3️⃣ Check if user still exists
   const users = await query(
-    `SELECT u.user_id, u.full_name, u.email, u.role, u.is_blacklisted
+    `SELECT 
+      u.user_id,
+      u.full_name,
+      u.email,
+      u.role,
+      u.is_blacklisted
      FROM users u
      WHERE u.user_id = ?`,
     [decoded.id]
@@ -53,28 +66,8 @@ const protect = catchAsync(async (req, res, next) => {
 
   // 5️⃣ Attach user to request
   req.user = user;
+
   next();
 });
 
-/**
- * Role-based Authorization
- */
-const restrictTo = (...roles) => {
-  return (req, res, next) => {
-    if (!roles.includes(req.user.role)) {
-      return next(
-        new AppError(
-          "You do not have permission to perform this action.",
-          403
-        )
-      );
-    }
-    next();
-  };
-};
-
-/**
- * ✅ Export both named and default
- */
-export { protect, restrictTo };
 export default protect;

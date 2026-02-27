@@ -13,6 +13,9 @@ import programRoutes from '../src/routes/programRoutes.js';
 import leaderboardRoutes from "../src/routes/leaderboardRoutes.js";
 import profileRoutes from '../src/routes/profileRoutes.js';
 
+import routes from "./routes/index.js";
+
+
 
 const app = express();
 
@@ -48,6 +51,7 @@ app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(cookieParser());
 app.use(compression());
 
+
 // Logger
 if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 
@@ -57,6 +61,7 @@ app.use('/api/companies', companyRoutes);
 app.use('/api/programs', programRoutes);
 app.use("/api/leaderboard", leaderboardRoutes);
 app.use('/api/profile', profileRoutes);
+app.use("/api/v1", routes);
 
 // Health check
 app.get('/api/health', (req, res) => {

@@ -4,12 +4,16 @@
    Private Profile Query (for /profile/me)
    Includes email + role
 ===================================================== */
+// src/queries/profileQueries.js
+
 export const GET_PRIVATE_PROFILE = `
   SELECT 
       u.user_id,
-      u.name,
+      u.full_name,
       u.email,
       u.role,
+      sp.reg_no,
+      sp.batch_year,
       sp.total_score,
       sp.programs_solved,
       sp.global_rank,
@@ -28,11 +32,11 @@ export const GET_PRIVATE_PROFILE = `
 export const GET_PUBLIC_PROFILE = `
   SELECT 
       u.user_id,
-      u.name,
+      u.full_name,
+      sp.batch_year,
       sp.total_score,
       sp.programs_solved,
-      sp.global_rank,
-      sp.created_at
+      sp.global_rank
   FROM users u
   INNER JOIN student_profiles sp 
       ON u.user_id = sp.user_id
@@ -48,11 +52,11 @@ export const GET_RECENT_SOLVES = `
       p.prog_id,
       p.title,
       p.difficulty,
-      spv.solved_at
-  FROM solved_programs spv
+      sp.solved_at
+  FROM solved_programs sp
   INNER JOIN programs p 
-      ON p.prog_id = spv.prog_id
-  WHERE spv.student_user_id = ?
-  ORDER BY spv.solved_at DESC
-  LIMIT ?
+      ON p.prog_id = sp.prog_id
+  WHERE sp.student_user_id = ?
+  ORDER BY sp.solved_at DESC
+  LIMIT 10
 `;

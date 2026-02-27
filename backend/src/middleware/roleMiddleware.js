@@ -1,25 +1,22 @@
-// src/middlewares/roleMiddleware.js
+// src/middleware/roleMiddleware.js
 
-import AppError from '../utils/appError.js';
+import AppError from "../utils/appError.js";
 
 /**
- * Restrict route to specific roles
- * Usage:
- *   restrictTo('admin')
- *   restrictTo('admin', 'teacher')
+ * 🔒 Role-Based Authorization Middleware
  */
 export const restrictTo = (...roles) => {
   return (req, res, next) => {
-    // 1️⃣ Check if user exists (protect middleware must run first)
     if (!req.user) {
-      return next(new AppError('Not authenticated.', 401));
+      return next(
+        new AppError("You must be logged in to access this resource.", 401)
+      );
     }
 
-    // 2️⃣ Check if user role is allowed
     if (!roles.includes(req.user.role)) {
       return next(
         new AppError(
-          `Access denied. Role "${req.user.role}" is not allowed.`,
+          "You do not have permission to perform this action.",
           403
         )
       );
