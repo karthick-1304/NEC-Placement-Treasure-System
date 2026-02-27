@@ -1,5 +1,6 @@
-import mysql from 'mysql2/promise';
-import dotenv from 'dotenv';
+import mysql from "mysql2/promise";
+import dotenv from "dotenv";
+
 dotenv.config();
 
 const pool = mysql.createPool({
@@ -11,15 +12,23 @@ const pool = mysql.createPool({
   waitForConnections: true,
   connectionLimit: 20,
   queueLimit: 0,
-  timezone: '+00:00',
-  charset: 'utf8mb4',
+  timezone: "+00:00",
+  charset: "utf8mb4",
 });
 
-export const query = async (sql, params) => {
-  const [rows] = await pool.execute(sql, params);
+/**
+ * ✅ General query function
+ * Uses pool.query() instead of execute()
+ * Safer for dynamic SQL and transactions
+ */
+export const query = async (sql, params = []) => {
+  const [rows] = await pool.query(sql, params);
   return rows;
 };
 
+/**
+ * ✅ Get connection for transactions
+ */
 export const getConnection = async () => {
   return await pool.getConnection();
 };

@@ -13,14 +13,14 @@ export const getStudentByEmail = async (email) => {
 };
 
 /**
- * 🔎 Get Student By Register Number
+ * 🔎 Get Student By Register Number (reg_no)
  */
-export const getStudentByRegisterNumber = async (registerNumber) => {
+export const getStudentByRegNo = async (regNo) => {
   return await query(
-    `SELECT s.student_id
-     FROM students s
-     WHERE s.register_number = ?`,
-    [registerNumber]
+    `SELECT user_id 
+     FROM student_profiles 
+     WHERE reg_no = ?`,
+    [regNo]
   );
 };
 
@@ -29,7 +29,7 @@ export const getStudentByRegisterNumber = async (registerNumber) => {
  */
 export const createUser = async (fullName, email, hashedPassword, role) => {
   return await query(
-    `INSERT INTO users (full_name, email, password, role)
+    `INSERT INTO users (full_name, email, password_hash, role)
      VALUES (?, ?, ?, ?)`,
     [fullName, email, hashedPassword, role]
   );
@@ -40,17 +40,15 @@ export const createUser = async (fullName, email, hashedPassword, role) => {
  */
 export const createStudentProfile = async (
   userId,
-  registerNumber,
-  departmentId,
-  year,
-  cgpa,
-  phone
+  regNo,
+  deptId,
+  batchYear
 ) => {
   return await query(
-    `INSERT INTO students 
-      (user_id, register_number, department_id, year, cgpa, phone)
-     VALUES (?, ?, ?, ?, ?, ?)`,
-    [userId, registerNumber, departmentId, year, cgpa, phone]
+    `INSERT INTO student_profiles
+      (user_id, reg_no, dept_id, batch_year)
+     VALUES (?, ?, ?, ?)`,
+    [userId, regNo, deptId, batchYear]
   );
 };
 
@@ -58,97 +56,84 @@ export const createStudentProfile = async (
  * 📄 Get All Students (With Filters & Pagination)
  */
 export const getAllStudents = async ({
-  departmentId,
-  year,
-  minCgpa,
-  maxCgpa,
+  deptId,
+  batchYear,
   offset,
   limit
 }) => {
   let sql = `
     SELECT 
-      s.student_id,
       u.user_id,
       u.full_name,
       u.email,
-      s.register_number,
-      s.department_id,
-      s.year,
-      s.cgpa,
-      s.phone,
-      u.is_blacklisted,
-      s.created_at
-    FROM students s
-    JOIN users u ON s.user_id = u.user_id
+      sp.reg_no,
+      sp.dept_id,
+      sp.batch_year,
+      sp.total_score,
+      sp.programs_solved,
+      sp.global_rank,
+      u.is_blacklisted
+    FROM student_profiles sp
+    JOIN users u ON sp.user_id = u.user_id
     WHERE 1=1
   `;
 
   const params = [];
 
-  if (departmentId) {
-    sql += ` AND s.department_id = ?`;
-    params.push(departmentId);
+  if (deptId) {
+    sql += ` AND sp.dept_id = ?`;
+    params.push(deptId);
   }
 
-  if (year) {
-    sql += ` AND s.year = ?`;
-    params.push(year);
+  if (batchYear) {
+    sql += ` AND sp.batch_year = ?`;
+    params.push(batchYear);
   }
 
-  if (minCgpa) {
-    sql += ` AND s.cgpa >= ?`;
-    params.push(minCgpa);
-  }
-
-  if (maxCgpa) {
-    sql += ` AND s.cgpa <= ?`;
-    params.push(maxCgpa);
-  }
-
-  sql += ` ORDER BY s.created_at DESC LIMIT ? OFFSET ?`;
+  sql += ` ORDER BY sp.user_id DESC LIMIT ? OFFSET ?`;
   params.push(limit, offset);
 
   return await query(sql, params);
 };
 
 /**
- * 🔍 Get Student By ID
+ * 🔍 Get Student By ID (user_id)
  */
-export const getStudentById = async (studentId) => {
+export const getStudentById = async (userId) => {
   return await query(
     `SELECT 
-      s.student_id,
       u.user_id,
       u.full_name,
       u.email,
-      s.register_number,
-      s.department_id,
-      s.year,
-      s.cgpa,
-      s.phone,
+      sp.reg_no,
+      sp.dept_id,
+      sp.batch_year,
+      sp.total_score,
+      sp.programs_solved,
+      sp.global_rank,
       u.is_blacklisted
-     FROM students s
-     JOIN users u ON s.user_id = u.user_id
-     WHERE s.student_id = ?`,
-    [studentId]
+     FROM student_profiles sp
+     JOIN users u ON sp.user_id = u.user_id
+     WHERE sp.user_id = ?`,
+    [userId]
   );
 };
 
 /**
- * ✏️ Update Student
+ * ✏️ Update Student Profile
  */
-export const updateStudent = async (studentId, fields, values) => {
+export const updateStudentProfile = async (userId, fields, values) => {
   const sql = `
-    UPDATE students
+    UPDATE student_profiles
     SET ${fields}
-    WHERE student_id = ?
+    WHERE user_id = ?
   `;
 
-  return await query(sql, [...values, studentId]);
+  return await query(sql, [...values, userId]);
 };
 
 /**
- * ✏️ Update User (Blacklist / Email etc.)
+ * ✏️ Update User
  */
 export const updateUser = async (userId, fields, values) => {
   const sql = `
@@ -161,12 +146,12 @@ export const updateUser = async (userId, fields, values) => {
 };
 
 /**
- * ❌ Delete Student (Hard Delete)
+ * ❌ Delete Student Profile
  */
-export const deleteStudent = async (studentId) => {
+export const deleteStudentProfile = async (userId) => {
   return await query(
-    `DELETE FROM students WHERE student_id = ?`,
-    [studentId]
+    `DELETE FROM student_profiles WHERE user_id = ?`,
+    [userId]
   );
 };
 

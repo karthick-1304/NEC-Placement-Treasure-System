@@ -2,19 +2,19 @@
 
 import bcrypt from "bcryptjs";
 import AppError from "../../utils/appError.js";
-import { query } from "../../utils/db.js";
-import  {ROLES}  from "../../constants/roles.js";
+import pool from "../../utils/db.js"; // ⚠️ import pool directly
+import { ROLES } from "../../constants/roles.js";
 
 import {
   getStudentByEmail,
-  getStudentByRegisterNumber,
+  getStudentByRegNo,
   createUser,
   createStudentProfile,
   getAllStudents,
   getStudentById,
-  updateStudent,
+  updateStudentProfile,
   updateUser,
-  deleteStudent,
+  deleteStudentProfile,
   deleteUser
 } from "../../queries/admin/adminStudentQueries.js";
 
@@ -26,31 +26,27 @@ export const createStudentService = async (data) => {
     full_name,
     email,
     password,
-    register_number,
-    department_id,
-    year,
-    cgpa,
-    phone
+    reg_no,
+    dept_id,
+    batch_year
   } = data;
 
-  // 1️⃣ Check if email already exists
+  // 1️⃣ Check email
   const existingUser = await getStudentByEmail(email);
   if (existingUser.length) {
     throw new AppError("Email already exists.", 400);
   }
 
-  // 2️⃣ Check if register number exists
-  const existingRegister = await getStudentByRegisterNumber(
-    register_number
-  );
-  if (existingRegister.length) {
+  // 2️⃣ Check reg_no
+  const existingReg = await getStudentByRegNo(reg_no);
+  if (existingReg.length) {
     throw new AppError("Register number already exists.", 400);
   }
 
-  // 3️⃣ Validate department exists & active
-  const dept = await query(
+  // 3️⃣ Validate department
+  const [dept] = await pool.execute(
     `SELECT dept_id FROM depts WHERE dept_id = ? AND is_active = 1`,
-    [department_id]
+    [dept_id]
   );
 
   if (!dept.length) {
@@ -60,37 +56,36 @@ export const createStudentService = async (data) => {
   // 4️⃣ Hash password
   const hashedPassword = await bcrypt.hash(password, 12);
 
-  // 5️⃣ Transaction Start
-  await query("START TRANSACTION");
+  const connection = await pool.getConnection();
 
   try {
-    // 6️⃣ Create user
-    const userResult = await createUser(
-      full_name,
-      email,
-      hashedPassword,
-      ROLES.STUDENT
-    );
+    await connection.beginTransaction();
+
+    // 5️⃣ Create user
+   const [userResult] = await connection.execute(
+  `INSERT INTO users (full_name, email, password_hash, role)
+   VALUES (?, ?, ?, ?)`,
+  [full_name, email, hashedPassword, ROLES.STUDENT]
+  );
 
     const userId = userResult.insertId;
 
-    // 7️⃣ Create student profile
-    await createStudentProfile(
-      userId,
-      register_number,
-      department_id,
-      year,
-      cgpa,
-      phone
+    // 6️⃣ Create student profile
+    await connection.execute(
+      `INSERT INTO student_profiles (user_id, reg_no, dept_id, batch_year)
+       VALUES (?, ?, ?, ?)`,
+      [userId, reg_no, dept_id, batch_year]
     );
 
-    // 8️⃣ Commit
-    await query("COMMIT");
+    await connection.commit();
 
     return { message: "Student created successfully." };
+
   } catch (err) {
-    await query("ROLLBACK");
+    await connection.rollback();
     throw err;
+  } finally {
+    connection.release();
   }
 };
 
@@ -98,15 +93,13 @@ export const createStudentService = async (data) => {
  * 📄 Get All Students
  */
 export const getAllStudentsService = async (filters) => {
-  const page = filters.page || 1;
-  const limit = filters.limit || 10;
+  const page = Number(filters.page) || 1;
+  const limit = Number(filters.limit) || 10;
   const offset = (page - 1) * limit;
 
   return await getAllStudents({
-    departmentId: filters.department_id,
-    year: filters.year,
-    minCgpa: filters.min_cgpa,
-    maxCgpa: filters.max_cgpa,
+    deptId: filters.dept_id,
+    batchYear: filters.batch_year,
     offset,
     limit
   });
@@ -115,8 +108,8 @@ export const getAllStudentsService = async (filters) => {
 /**
  * 🔍 Get Student By ID
  */
-export const getStudentByIdService = async (studentId) => {
-  const student = await getStudentById(studentId);
+export const getStudentByIdService = async (userId) => {
+  const student = await getStudentById(userId);
 
   if (!student.length) {
     throw new AppError("Student not found.", 404);
@@ -128,107 +121,114 @@ export const getStudentByIdService = async (studentId) => {
 /**
  * ✏️ Update Student
  */
-export const updateStudentService = async (studentId, data) => {
-  const student = await getStudentById(studentId);
+export const updateStudentService = async (userId, data) => {
+  const student = await getStudentById(userId);
   if (!student.length) {
     throw new AppError("Student not found.", 404);
   }
 
-  const studentFields = [];
-  const studentValues = [];
-
-  const userFields = [];
-  const userValues = [];
-
-  if (data.full_name) {
-    userFields.push("full_name = ?");
-    userValues.push(data.full_name);
-  }
-
-  if (data.email) {
-    userFields.push("email = ?");
-    userValues.push(data.email);
-  }
-
-  if (typeof data.is_blacklisted === "boolean") {
-    userFields.push("is_blacklisted = ?");
-    userValues.push(data.is_blacklisted);
-  }
-
-  if (data.register_number) {
-    studentFields.push("register_number = ?");
-    studentValues.push(data.register_number);
-  }
-
-  if (data.department_id) {
-    studentFields.push("department_id = ?");
-    studentValues.push(data.department_id);
-  }
-
-  if (data.year) {
-    studentFields.push("year = ?");
-    studentValues.push(data.year);
-  }
-
-  if (data.cgpa) {
-    studentFields.push("cgpa = ?");
-    studentValues.push(data.cgpa);
-  }
-
-  if (data.phone) {
-    studentFields.push("phone = ?");
-    studentValues.push(data.phone);
-  }
-
-  await query("START TRANSACTION");
+  const connection = await pool.getConnection();
 
   try {
-    if (studentFields.length) {
-      await updateStudent(
-        studentId,
-        studentFields.join(", "),
-        studentValues
+    await connection.beginTransaction();
+
+    // Update user table
+    if (data.full_name || data.email || typeof data.is_blacklisted === "boolean") {
+      const userFields = [];
+      const userValues = [];
+
+      if (data.full_name) {
+        userFields.push("full_name = ?");
+        userValues.push(data.full_name);
+      }
+
+      if (data.email) {
+        userFields.push("email = ?");
+        userValues.push(data.email);
+      }
+
+      if (typeof data.is_blacklisted === "boolean") {
+        userFields.push("is_blacklisted = ?");
+        userValues.push(data.is_blacklisted);
+      }
+
+      await connection.execute(
+        `UPDATE users SET ${userFields.join(", ")} WHERE user_id = ?`,
+        [...userValues, userId]
       );
     }
 
-    if (userFields.length) {
-      await updateUser(
-        student[0].user_id,
-        userFields.join(", "),
-        userValues
+    // Update profile table
+    if (data.reg_no || data.dept_id || data.batch_year) {
+      const profileFields = [];
+      const profileValues = [];
+
+      if (data.reg_no) {
+        profileFields.push("reg_no = ?");
+        profileValues.push(data.reg_no);
+      }
+
+      if (data.dept_id) {
+        profileFields.push("dept_id = ?");
+        profileValues.push(data.dept_id);
+      }
+
+      if (data.batch_year) {
+        profileFields.push("batch_year = ?");
+        profileValues.push(data.batch_year);
+      }
+
+      await connection.execute(
+        `UPDATE student_profiles SET ${profileFields.join(", ")} WHERE user_id = ?`,
+        [...profileValues, userId]
       );
     }
 
-    await query("COMMIT");
+    await connection.commit();
 
     return { message: "Student updated successfully." };
+
   } catch (err) {
-    await query("ROLLBACK");
+    await connection.rollback();
     throw err;
+  } finally {
+    connection.release();
   }
 };
 
 /**
  * ❌ Delete Student
  */
-export const deleteStudentService = async (studentId) => {
-  const student = await getStudentById(studentId);
+export const deleteStudentService = async (userId) => {
+  const student = await getStudentById(userId);
 
   if (!student.length) {
     throw new AppError("Student not found.", 404);
   }
 
-  await query("START TRANSACTION");
+  const connection = await pool.getConnection();
 
   try {
-    await deleteStudent(studentId);
-    await deleteUser(student[0].user_id);
+    await connection.beginTransaction();
 
-    await query("COMMIT");
+    await connection.execute(
+      `DELETE FROM student_profiles WHERE user_id = ?`,
+      [userId]
+    );
+
+    await connection.execute(
+      `DELETE FROM users WHERE user_id = ?`,
+      [userId]
+    );
+
+    await connection.commit();
 
     return { message: "Student deleted successfully." };
+
   } catch (err) {
-    await query("ROLLBACK");
+    await connection.rollback();
     throw err;
+  } finally {
+    connection.release();
   }
 };

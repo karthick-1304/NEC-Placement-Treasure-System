@@ -61,17 +61,18 @@ router.get(
 );
 
 // 🔍 Get Single Student
-router.get("/students/:studentId", getStudentById);
+router.get("/students/:userId", getStudentById);
 
 // ✏️ Update Student
 router.patch(
-  "/students/:studentId",
+  "/students/:userId",
   validate(updateStudentSchema),
   updateStudent
 );
 
+
 // ❌ Delete Student
-router.delete("/students/:studentId", deleteStudent);
+router.delete("/students/:userId", deleteStudent);
 
 /* =====================================================
    📦 Modular Admin Routes

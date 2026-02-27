@@ -13,7 +13,7 @@ import {
 /**
  * ➕ Create Student (Admin)
  */
-export const createStudent = catchAsync(async (req, res, next) => {
+export const createStudent = catchAsync(async (req, res) => {
   const result = await createStudentService(req.body);
 
   res.status(201).json({
@@ -25,7 +25,7 @@ export const createStudent = catchAsync(async (req, res, next) => {
 /**
  * 📄 Get All Students (Admin)
  */
-export const getAllStudents = catchAsync(async (req, res, next) => {
+export const getAllStudents = catchAsync(async (req, res) => {
   const students = await getAllStudentsService(req.query);
 
   res.status(200).json({
@@ -37,11 +37,12 @@ export const getAllStudents = catchAsync(async (req, res, next) => {
 
 /**
  * 🔍 Get Single Student (Admin)
+ * Now using user_id instead of student_id
  */
-export const getStudentById = catchAsync(async (req, res, next) => {
-  const student = await getStudentByIdService(
-    Number(req.params.studentId)
-  );
+export const getStudentById = catchAsync(async (req, res) => {
+  const userId = Number(req.params.userId);
+
+  const student = await getStudentByIdService(userId);
 
   res.status(200).json({
     status: "success",
@@ -52,9 +53,11 @@ export const getStudentById = catchAsync(async (req, res, next) => {
 /**
  * ✏️ Update Student (Admin)
  */
-export const updateStudent = catchAsync(async (req, res, next) => {
+export const updateStudent = catchAsync(async (req, res) => {
+  const userId = Number(req.params.userId);
+
   const result = await updateStudentService(
-    Number(req.params.studentId),
+    userId,
     req.body
   );
 
@@ -67,10 +70,10 @@ export const updateStudent = catchAsync(async (req, res, next) => {
 /**
  * ❌ Delete Student (Admin)
  */
-export const deleteStudent = catchAsync(async (req, res, next) => {
-  const result = await deleteStudentService(
-    Number(req.params.studentId)
-  );
+export const deleteStudent = catchAsync(async (req, res) => {
+  const userId = Number(req.params.userId);
+
+  const result = await deleteStudentService(userId);
 
   res.status(200).json({
     status: "success",

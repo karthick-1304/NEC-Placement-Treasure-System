@@ -15,6 +15,8 @@ const passwordPattern =
 
 /**
  * 🎓 Create Student Schema (Admin Only)
+ * Based on:
+ * users + student_profiles
  */
 export const createStudentSchema = Joi.object({
   full_name: Joi.string().trim().min(3).max(100).required(),
@@ -28,19 +30,14 @@ export const createStudentSchema = Joi.object({
     )
     .required(),
 
-  register_number: Joi.string().trim().min(5).max(20).required(),
+  // student_profiles fields
+  reg_no: Joi.string().trim().min(5).max(20).required(),
 
-  department_id: Joi.number().integer().positive().required(),
+  dept_id: Joi.number().integer().positive().required(),
 
-  year: Joi.number().integer().min(1).max(5).required(),
-
-  cgpa: Joi.number().min(0).max(10).precision(2).required(),
-
-  phone: Joi.string()
-    .pattern(/^[0-9]{10}$/)
-    .message("Phone number must be 10 digits.")
-    .required()
+  batch_year: Joi.number().integer().min(2000).max(2100).required()
 });
+
 
 /**
  * 📝 Update Student Schema (Admin)
@@ -50,32 +47,23 @@ export const updateStudentSchema = Joi.object({
 
   email: Joi.string().email(),
 
-  register_number: Joi.string().trim().min(5).max(20),
+  reg_no: Joi.string().trim().min(5).max(20),
 
-  department_id: Joi.number().integer().positive(),
+  dept_id: Joi.number().integer().positive(),
 
-  year: Joi.number().integer().min(1).max(5),
-
-  cgpa: Joi.number().min(0).max(10).precision(2),
-
-  phone: Joi.string()
-    .pattern(/^[0-9]{10}$/)
-    .message("Phone number must be 10 digits."),
+  batch_year: Joi.number().integer().min(2000).max(2100),
 
   is_blacklisted: Joi.boolean()
 }).min(1); // At least one field must be provided
+
 
 /**
  * 🔍 Student Query Filters (Admin Panel)
  */
 export const studentQuerySchema = Joi.object({
-  department_id: Joi.number().integer().positive(),
+  dept_id: Joi.number().integer().positive(),
 
-  year: Joi.number().integer().min(1).max(5),
-
-  min_cgpa: Joi.number().min(0).max(10),
-
-  max_cgpa: Joi.number().min(0).max(10),
+  batch_year: Joi.number().integer().min(2000).max(2100),
 
   page: Joi.number().integer().min(1),
 
