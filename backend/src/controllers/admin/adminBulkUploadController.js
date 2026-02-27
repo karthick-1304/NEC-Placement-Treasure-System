@@ -3,7 +3,7 @@
 import catchAsync from "../../utils/catchAsync.js";
 import {
   bulkUploadStudentsService,
-  bulkUploadQuestionsService,
+  bulkUploadProgramsService,
   bulkUploadCompaniesService
 } from "../../services/admin/adminBulkUploadService.js";
 
@@ -24,10 +24,10 @@ export const bulkUploadStudents = catchAsync(async (req, res) => {
 /**
  * ❓ Bulk Upload Questions
  */
-export const bulkUploadQuestions = catchAsync(async (req, res) => {
+export const bulkUploadPrograms = catchAsync(async (req, res) => {
   const { data } = req.body;
 
-  const result = await bulkUploadQuestionsService(data);
+  const result = await bulkUploadProgramsService(data);
 
   res.status(200).json({
     status: "success",

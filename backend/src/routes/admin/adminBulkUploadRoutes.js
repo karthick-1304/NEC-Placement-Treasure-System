@@ -3,7 +3,7 @@
 import express from "express";
 import {
   bulkUploadStudents,
-  bulkUploadQuestions,
+  bulkUploadPrograms,
   bulkUploadCompanies
 } from "../../controllers/admin/adminBulkUploadController.js";
 
@@ -29,7 +29,7 @@ router.post("/students", bulkUploadStudents);
 /**
  * ❓ Bulk Upload Questions
  */
-router.post("/questions", bulkUploadQuestions);
+router.post("/programs", bulkUploadPrograms);
 
 /**
  * 🏢 Bulk Upload Companies

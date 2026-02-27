@@ -2,90 +2,35 @@
 
 import { query } from "../../utils/db.js";
 
-/**
- * 👨‍🎓 Insert Single Student (Used for Bulk Insert Loop)
- */
-export const insertStudent = async (
-  fullName,
-  email,
-  password,
-  deptId,
-  role = "student"
-) => {
-  return await query(
-    `INSERT INTO users 
-      (full_name, email, password, dept_id, role)
-     VALUES (?, ?, ?, ?, ?)`,
-    [fullName, email, password, deptId, role]
-  );
+/* ============================
+   👨‍🎓 STUDENT INSERT
+============================ */
+
+// Insert into users
+export const insertStudentUser = async (full_name, email, passwordHash) => {
+  const sql = `
+    INSERT INTO users
+    (full_name, email, password_hash, role)
+    VALUES (?, ?, ?, 'student')
+  `;
+  return await query(sql, [full_name, email, passwordHash]);
 };
 
-/**
- * 📚 Insert Single Question (Used for Bulk Insert Loop)
- */
-export const insertQuestion = async (
-  title,
-  description,
-  difficulty,
-  categoryId,
-  companyId,
-  marks,
-  isActive = true
+// Insert into student_profiles
+export const insertStudentProfile = async (
+  user_id,
+  dept_id,
+  batch_year,
+  reg_no
 ) => {
-  return await query(
-    `INSERT INTO questions
-      (title, description, difficulty, category_id, company_id, marks, is_active)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`,
-    [
-      title,
-      description,
-      difficulty,
-      categoryId,
-      companyId,
-      marks,
-      isActive
-    ]
-  );
+  const sql = `
+    INSERT INTO student_profiles
+    (user_id, dept_id, batch_year, reg_no)
+    VALUES (?, ?, ?, ?)
+  `;
+  return await query(sql, [user_id, dept_id, batch_year, reg_no]);
 };
 
-/**
- * 🏢 Insert Single Company (Used for Bulk Insert Loop)
- */
-export const insertCompany = async (
-  name,
-  description,
-  packageValue,
-  eligibilityCgpa,
-  visitYear,
-  roleOffered,
-  location,
-  website,
-  logoPath,
-  isActive = true
-) => {
-  return await query(
-    `INSERT INTO companies
-      (name, description, package, eligibility_cgpa, visit_year,
-       role_offered, location, website, logo, is_active)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-    [
-      name,
-      description,
-      packageValue,
-      eligibilityCgpa,
-      visitYear,
-      roleOffered,
-      location,
-      website,
-      logoPath,
-      isActive
-    ]
-  );
-};
-
-/**
- * 🔎 Check If Email Exists (Avoid Duplicate Students)
- */
 export const checkStudentByEmail = async (email) => {
   return await query(
     `SELECT user_id FROM users WHERE email = ?`,
@@ -93,22 +38,51 @@ export const checkStudentByEmail = async (email) => {
   );
 };
 
-/**
- * 🔎 Check If Question Exists (Avoid Duplicate Questions)
- */
-export const checkQuestionByTitle = async (title) => {
+/* ============================
+   💻 PROGRAM INSERT
+============================ */
+
+export const insertProgram = async (
+  title,
+  description,
+  difficulty,
+  createdBy
+) => {
   return await query(
-    `SELECT question_id FROM questions WHERE title = ?`,
+    `INSERT INTO programs
+     (title, description, difficulty, supported_languages)
+     VALUES (?, ?, ?, JSON_ARRAY('java','cpp','python'))`,
+    [title, description, difficulty]
+  );
+};
+
+export const checkProgramByTitle = async (title) => {
+  return await query(
+    `SELECT prog_id FROM programs WHERE title = ?`,
     [title]
   );
 };
 
-/**
- * 🔎 Check If Company Exists (Avoid Duplicate Companies)
- */
+/* ============================
+   🏢 COMPANY INSERT
+============================ */
+
+export const insertCompany = async (
+  companyName,
+  location,
+  logoUrl
+) => {
+  return await query(
+    `INSERT INTO companies
+     (company_name, location, logo_url, is_active)
+     VALUES (?, ?, ?, 1)`,
+    [companyName, location, logoUrl]
+  );
+};
+
 export const checkCompanyByName = async (name) => {
   return await query(
-    `SELECT company_id FROM companies WHERE name = ?`,
+    `SELECT company_id FROM companies WHERE company_name = ?`,
     [name]
   );
 };

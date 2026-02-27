@@ -1,32 +1,27 @@
-// backend/src/services/admin/adminAnalyticsService.js
-
 import {
   getStudentsByDepartment,
-  getQuestionsByDifficulty,
-  getCompanyVisitsByYear,
+  getProgramsByDifficulty,
+  getCompanyCount,
   getAverageScoreByDepartment,
-  getFeedbackRatingDistribution,
-  getMonthlyQuestionTrend
+  getSelectionStats,
+  getMonthlyProgramTrend
 } from "../../queries/admin/adminAnalyticsQueries.js";
 
-/**
- * 📊 Get Complete Admin Analytics Data
- */
 export const getAdminAnalyticsService = async () => {
   const [
     studentsByDepartment,
-    questionsByDifficulty,
-    companyVisitsByYear,
+    programsByDifficulty,
+    companyCount,
     averageScoreByDepartment,
-    feedbackRatingDistribution,
-    monthlyQuestionTrend
+    selectionStats,
+    monthlyProgramTrend
   ] = await Promise.all([
     getStudentsByDepartment(),
-    getQuestionsByDifficulty(),
-    getCompanyVisitsByYear(),
+    getProgramsByDifficulty(),
+    getCompanyCount(),
     getAverageScoreByDepartment(),
-    getFeedbackRatingDistribution(),
-    getMonthlyQuestionTrend()
+    getSelectionStats(),
+    getMonthlyProgramTrend()
   ]);
 
   return {
@@ -34,15 +29,15 @@ export const getAdminAnalyticsService = async () => {
       studentsByDepartment,
       averageScoreByDepartment
     },
-    questionAnalytics: {
-      questionsByDifficulty,
-      monthlyQuestionTrend
+    programAnalytics: {
+      programsByDifficulty,
+      monthlyProgramTrend
     },
     companyAnalytics: {
-      companyVisitsByYear
+      companyCount
     },
-    feedbackAnalytics: {
-      feedbackRatingDistribution
+    placementAnalytics: {
+      selectionStats
     }
   };
 };
