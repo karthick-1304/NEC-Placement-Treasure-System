@@ -12,7 +12,7 @@ import companyRoutes from '../src/routes/companyRoutes.js';
 import programRoutes from '../src/routes/programRoutes.js';
 import leaderboardRoutes from "../src/routes/leaderboardRoutes.js";
 import profileRoutes from '../src/routes/profileRoutes.js';
-
+import studentFeedbackRoutes from "./routes/studentFeedbackRoutes.js";
 import routes from "./routes/index.js";
 
 
@@ -52,6 +52,7 @@ app.use(cookieParser());
 app.use(compression());
 
 
+
 // Logger
 if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 
@@ -61,6 +62,8 @@ app.use('/api/companies', companyRoutes);
 app.use('/api/programs', programRoutes);
 app.use("/api/leaderboard", leaderboardRoutes);
 app.use('/api/profile', profileRoutes);
+app.use("/api/student/feedback", studentFeedbackRoutes);
+app.use("/uploads", express.static("uploads"));
 app.use("/api/v1", routes);
 
 // Health check

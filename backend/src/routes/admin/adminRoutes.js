@@ -28,7 +28,7 @@ import {
    Other Admin Route Modules
 ========================= */
 import adminCompanyRoutes from "./adminCompanyRoutes.js";
-import adminQuestionRoutes from "./adminQuestionRoutes.js";
+import adminProgramRoutes from "./adminProgramRoutes.js";
 import adminFeedbackRoutes from "./adminFeedbackRoutes.js";
 import adminDashboardRoutes from "./adminDashboardRoutes.js";
 import adminAnalyticsRoutes from "./adminAnalyticsRoutes.js";
@@ -79,7 +79,7 @@ router.delete("/students/:userId", deleteStudent);
 ===================================================== */
 
 router.use("/companies", adminCompanyRoutes);
-router.use("/questions", adminQuestionRoutes);
+router.use("/programs", adminProgramRoutes);
 router.use("/feedback", adminFeedbackRoutes);
 router.use("/dashboard", adminDashboardRoutes);
 router.use("/analytics", adminAnalyticsRoutes);

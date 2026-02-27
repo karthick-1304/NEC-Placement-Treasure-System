@@ -4,8 +4,9 @@ import AppError from "../../utils/appError.js";
 import {
   getAllFeedback,
   getFeedbackById,
-  markFeedbackResolved,
-  deleteFeedback
+  updateSelectionStatus,
+  deleteFeedback,createFeedback,
+  checkExistingFeedback
 } from "../../queries/admin/adminFeedbackQueries.js";
 
 /**
@@ -17,11 +18,10 @@ export const getAllFeedbackService = async (filters) => {
   const offset = (page - 1) * limit;
 
   const feedback = await getAllFeedback({
-    userId: filters.user_id,
-    rating: filters.rating,
-    isResolved:
-      filters.is_resolved !== undefined
-        ? filters.is_resolved
+    driveId: filters.drive_id,
+    isSelected:
+      filters.is_selected !== undefined
+        ? filters.is_selected
         : undefined,
     offset,
     limit
@@ -49,11 +49,11 @@ export const getFeedbackByIdService = async (feedbackId) => {
 };
 
 /**
- * ✅ Update Feedback Resolution Status
+ * ✅ Update Selection Status
  */
 export const updateFeedbackStatusService = async (
   feedbackId,
-  isResolved
+  isSelected
 ) => {
   const feedback = await getFeedbackById(feedbackId);
 
@@ -61,9 +61,9 @@ export const updateFeedbackStatusService = async (
     throw new AppError("Feedback not found", 404);
   }
 
-  await markFeedbackResolved(feedbackId, isResolved);
+  await updateSelectionStatus(feedbackId, isSelected);
 
-  return { message: "Feedback status updated successfully" };
+  return { message: "Selection status updated successfully" };
 };
 
 /**
@@ -79,4 +79,31 @@ export const deleteFeedbackService = async (feedbackId) => {
   await deleteFeedback(feedbackId);
 
   return { message: "Feedback deleted successfully" };
+};
+
+export const addFeedbackService = async ({
+  driveId,
+  studentUserId,
+  pdfUrl
+}) => {
+  // 🔎 Prevent duplicate submission
+  const existing = await checkExistingFeedback(
+    driveId,
+    studentUserId
+  );
+
+  if (existing.length) {
+    throw new AppError(
+      "You have already submitted feedback for this drive",
+      400
+    );
+  }
+
+  await createFeedback({
+    driveId,
+    studentUserId,
+    pdfUrl
+  });
+
+  return { message: "Feedback submitted successfully" };
 };
