@@ -4,9 +4,9 @@ import express from 'express';
 import {
   getMyProfile,
   getStudentProfile,
-} from '../controllers/profileController.js';
+} from '../../controllers/user/profileController.js';
 
-import { protect } from '../middleware/authMiddleware.js'; 
+import { protect } from '../../middleware/authMiddleware.js'; 
 // Adjust path if your middleware location differs
 
 const router = express.Router();

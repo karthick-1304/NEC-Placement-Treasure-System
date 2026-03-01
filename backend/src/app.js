@@ -8,11 +8,11 @@ import rateLimit from 'express-rate-limit';
 import globalErrorHandler from '../src/middleware/globalErrorHandler.js';
 import AppError from '../src/utils/appError.js';
 import authRoutes from '../src/routes/authRoutes.js';
-import companyRoutes from '../src/routes/companyRoutes.js';
-import programRoutes from '../src/routes/programRoutes.js';
-import leaderboardRoutes from "../src/routes/leaderboardRoutes.js";
-import profileRoutes from '../src/routes/profileRoutes.js';
-import studentFeedbackRoutes from "./routes/studentFeedbackRoutes.js";
+import companyRoutes from '../src/routes/user/companyRoutes.js';
+import programRoutes from '../src/routes/user/programRoutes.js';
+import leaderboardRoutes from "../src/routes/user/leaderboardRoutes.js";
+import profileRoutes from '../src/routes/user/programRoutes.js';
+import studentFeedbackRoutes from "./routes/user/studentFeedbackRoutes.js";
 import routes from "./routes/index.js";
 
 

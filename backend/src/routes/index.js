@@ -3,10 +3,10 @@
 import express from "express";
 
 import authRoutes from "./authRoutes.js";
-import companyRoutes from "./companyRoutes.js";
-import leaderboardRoutes from "./leaderboardRoutes.js";
-import profileRoutes from "./profileRoutes.js";
-import programRoutes from "./programRoutes.js";
+import companyRoutes from "./user/companyRoutes.js";
+import leaderboardRoutes from "./user/leaderboardRoutes.js";
+import profileRoutes from "./user/profileRoutes.js";
+import programRoutes from "./user/programRoutes.js";
 
 import adminRoutes from "./admin/adminRoutes.js";
 

@@ -1,13 +1,13 @@
 // src/controllers/profileController.js
 
-import catchAsync from '../utils/catchAsync.js';
-import AppError from '../utils/appError.js';
+import catchAsync from '../../utils/catchAsync.js';
+import AppError from '../../utils/appError.js';
 
 import {
   getPrivateProfile,
   getPublicProfile,
   getRecentSolvedPrograms,
-} from '../services/profileService.js';
+} from '../../services/user/profileService.js';
 
 
 /* =====================================================

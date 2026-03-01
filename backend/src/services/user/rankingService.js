@@ -1,6 +1,6 @@
 // src/services/rankingService.js
 
-import { query } from '../utils/db.js';
+import { query } from '../../utils/db.js';
 
 /**
  * Recalculate global ranks for all students

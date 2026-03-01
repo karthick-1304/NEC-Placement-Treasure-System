@@ -1,7 +1,7 @@
 // src/controllers/leaderboardController.js
 
-import catchAsync from "../utils/catchAsync.js";
-import { fetchLeaderboard, fetchTopStudents } from "../services/leaderboardService.js";
+import catchAsync from "../../utils/catchAsync.js";
+import { fetchLeaderboard, fetchTopStudents } from "../../services/user/leaderboardService.js";
 
 /**
  * @desc    Get leaderboard (with optional filters)

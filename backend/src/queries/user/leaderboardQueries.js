@@ -1,6 +1,6 @@
 // src/queries/leaderboardQueries.js
 
-import db from "../utils/db.js";
+import db from "../../utils/db.js";
 
 /**
  * Get total number of students (with optional filters)

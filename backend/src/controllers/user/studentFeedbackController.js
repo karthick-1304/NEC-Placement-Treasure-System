@@ -3,7 +3,7 @@
 import {
   addOrUpdateFeedback,
   getMyFeedbacks
-} from "../services/studentFeedbackService.js";
+} from "../../services/user/studentFeedbackService.js";
 
 export const submitFeedback = async (req, res) => {
   try {

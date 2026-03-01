@@ -1,9 +1,9 @@
-import { query, getConnection } from '../utils/db.js';
-import catchAsync from '../utils/catchAsync.js';
-import AppError from '../utils/appError.js';
-import { executeCode } from '../utils/codeExecutor.js';
-import { recalculateGlobalRanks } from '../services/rankingService.js';
-import { calculateScore } from '../utils/scoreCalculator.js';
+import { query, getConnection } from '../../utils/db.js';
+import catchAsync from '../../utils/catchAsync.js';
+import AppError from '../../utils/appError.js';
+import { executeCode } from '../../utils/codeExecutor.js';
+import { recalculateGlobalRanks } from '../../services/user/rankingService.js';
+import { calculateScore } from '../../utils/scoreCalculator.js';
 
 
 

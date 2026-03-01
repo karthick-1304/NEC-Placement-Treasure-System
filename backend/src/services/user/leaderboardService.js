@@ -4,7 +4,7 @@ import {
   getTotalStudents, 
   getLeaderboardStudents, 
   getTopStudents 
-} from "../queries/leaderboardQueries.js";
+} from "../../queries/user/leaderboardQueries.js";
 
 /**
  * Fetch leaderboard with pagination and optional filters

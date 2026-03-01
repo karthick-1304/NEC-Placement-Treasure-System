@@ -1,7 +1,7 @@
 import express from "express";
-import { protect } from "../middleware/authMiddleware.js";
+import { protect } from "../../middleware/authMiddleware.js";
 import { getLeaderboard, getTopStudents } 
-from "../controllers/leaderboardController.js";
+from "../../controllers/user/leaderboardController.js";
 
 const router = express.Router();
 

@@ -4,11 +4,11 @@ import express from "express";
 import {
   submitFeedback,
   getMyFeedback
-} from "../controllers/studentFeedbackController.js";
+} from "../../controllers/user/studentFeedbackController.js";
 
-import uploadFeedback from "../utils/multerFeedback.js";
-import { protect } from "../middleware/authMiddleware.js";
-import {restrictTo} from "../middleware/roleMiddleware.js";
+import uploadFeedback from "../../utils/multerFeedback.js";
+import { protect } from "../../middleware/authMiddleware.js";
+import {restrictTo} from "../../middleware/roleMiddleware.js";
 
 const router = express.Router();
 

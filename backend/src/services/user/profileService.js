@@ -1,9 +1,9 @@
-import { query } from '../utils/db.js';
+import { query } from '../../utils/db.js';
 import {
   GET_PRIVATE_PROFILE,
   GET_PUBLIC_PROFILE,
   GET_RECENT_SOLVES,
-} from '../queries/profileQueries.js';
+} from '../../queries/user/profileQueries.js';
 
 export const getPrivateProfile = async (userId) => {
   const rows = await query(GET_PRIVATE_PROFILE, [userId]);

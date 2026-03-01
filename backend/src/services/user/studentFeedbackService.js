@@ -1,13 +1,13 @@
 // services/studentFeedbackService.js
 
-import db from "../utils/db.js";
+import db from "../../utils/db.js";
 import fs from "fs";
 import {
   CHECK_EXISTING_FEEDBACK,
   INSERT_FEEDBACK,
   UPDATE_FEEDBACK,
   GET_MY_FEEDBACKS
-} from "../queries/studentFeedbackQueries.js";
+} from "../../queries/user/studentFeedbackQueries.js";
 
 export const addOrUpdateFeedback = async (userId, data) => {
   const { drive_id, feedback_pdf_url, is_selected } = data;
