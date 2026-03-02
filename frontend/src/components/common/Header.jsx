@@ -6,9 +6,10 @@ import { logoutThunk } from '../../store/slices/authSlice.js';
 import Spinner from './Spinner.jsx';
 
 const NAV_LINKS = [
-  { label: 'Home',             to: '/',          roles: ['student','staff','dept_head','admin'] },
-  { label: 'Progress Explorer',to: '/progress',  roles: ['student','staff','dept_head','admin'] },
-  { label: 'Admin Settings',   to: '/admin',     roles: ['admin'] },
+  { label: 'Home',             to: '/',           roles: ['student','staff','dept_head','admin'] },
+  { label: 'Leaderboard',      to: '/leaderboard',roles: ['student','staff','dept_head','admin'] }, // ✅ NEW
+  { label: 'Progress Explorer',to: '/progress',   roles: ['student','staff','dept_head','admin'] },
+  { label: 'Admin Settings',   to: '/admin',      roles: ['admin'] },
 ];
 
 export default function Header() {
