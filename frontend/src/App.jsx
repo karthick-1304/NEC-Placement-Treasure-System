@@ -1,4 +1,5 @@
 import ProfilePage from './pages/ProfilePage.jsx';
+import ProgressExplorer from "./pages/ProgressExplorer.jsx";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import AuthLayout from "./layouts/AuthLayout.jsx";
@@ -34,6 +35,7 @@ export default function App() {
 
             {/* ✅ NEW Leaderboard route */}
             <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/progress" element={<ProgressExplorer />} />
             <Route path="/profile" element={<ProfilePage />} />
           </Route>
         </Route>
