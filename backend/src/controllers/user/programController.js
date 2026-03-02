@@ -1,9 +1,10 @@
-import { query, getConnection } from '../utils/db.js';
-import catchAsync from '../utils/catchAsync.js';
-import AppError from '../utils/appError.js';
-import { executeCode } from '../utils/codeExecutor.js';
+import { query, getConnection } from '../../utils/db.js';
+import catchAsync from '../../utils/catchAsync.js';
+import AppError from '../../utils/appError.js';
+import { executeCode } from '../../utils/codeExecutor.js';
+import { recalculateGlobalRanks } from '../../services/user/rankingService.js';
+import { calculateScore } from '../../utils/scoreCalculator.js';
 
-const SCORE_MAP = { easy: 10, medium: 20, hard: 30 };
 
 
 const parseLangs = (val) => {
@@ -12,13 +13,16 @@ const parseLangs = (val) => {
     const parsed = JSON.parse(val);
     return Array.isArray(parsed) ? parsed : [];
   } catch {
-    // fallback: plain comma string like "c,cpp,java,python"
-    return String(val).split(',').map((s) => s.trim()).filter(Boolean);
+    return String(val)
+      .split(',')
+      .map((s) => s.trim())
+      .filter(Boolean);
   }
 };
 
-
-// GET /api/programs/:progId
+/* =====================================================
+   GET /api/programs/:progId
+===================================================== */
 export const getProgram = catchAsync(async (req, res, next) => {
   const { progId } = req.params;
 
@@ -34,11 +38,9 @@ export const getProgram = catchAsync(async (req, res, next) => {
 
   if (!programs.length) return next(new AppError('Program not found.', 404));
 
-  // getProgram
-const program = programs[0];
-program.supported_languages = parseLangs(program.supported_languages);
+  const program = programs[0];
+  program.supported_languages = parseLangs(program.supported_languages);
 
-  // Public test cases
   const publicTestCases = await query(
     `SELECT test_case_id, input_data, expected_output, display_order
      FROM public_test_cases
@@ -47,16 +49,16 @@ program.supported_languages = parseLangs(program.supported_languages);
     [progId]
   );
 
-  // Language templates for supported languages of this program
   const placeholders = program.supported_languages.map(() => '?').join(',');
-  const langTemplates = await query(
-    `SELECT lang_slug, lang_name, version_label, template
-     FROM programming_languages
-     WHERE lang_slug IN (${placeholders}) AND is_active = 1`,
-    program.supported_languages
-  );
+  const langTemplates = program.supported_languages.length
+    ? await query(
+        `SELECT lang_slug, lang_name, version_label, template
+         FROM programming_languages
+         WHERE lang_slug IN (${placeholders}) AND is_active = 1`,
+        program.supported_languages
+      )
+    : [];
 
-  // If student — check already solved
   let is_solved = false;
   if (req.user?.role === 'student') {
     const solved = await query(
@@ -77,7 +79,9 @@ program.supported_languages = parseLangs(program.supported_languages);
   });
 });
 
-// GET /api/programs/:progId/template?lang=python
+/* =====================================================
+   GET /api/programs/:progId/template?lang=python
+===================================================== */
 export const getLangTemplate = catchAsync(async (req, res, next) => {
   const { progId } = req.params;
   const { lang } = req.query;
@@ -88,11 +92,15 @@ export const getLangTemplate = catchAsync(async (req, res, next) => {
     `SELECT supported_languages FROM programs WHERE prog_id = ?`,
     [progId]
   );
+
   if (!programs.length) return next(new AppError('Program not found.', 404));
 
-const supported = parseLangs(programs[0].supported_languages);
+  const supported = parseLangs(programs[0].supported_languages);
+
   if (!supported.includes(lang))
-    return next(new AppError(`Language "${lang}" is not supported for this program.`, 400));
+    return next(
+      new AppError(`Language "${lang}" is not supported for this program.`, 400)
+    );
 
   const langs = await query(
     `SELECT lang_slug, lang_name, version_label, template
@@ -109,25 +117,32 @@ const supported = parseLangs(programs[0].supported_languages);
   });
 });
 
-// POST /api/programs/:progId/run
+/* =====================================================
+   POST /api/programs/:progId/run
+===================================================== */
 export const runProgram = catchAsync(async (req, res, next) => {
   const { progId } = req.params;
   const { lang, code } = req.body;
 
-  if (!lang || !code) return next(new AppError('Please provide lang and code.', 400));
+  if (!lang || !code)
+    return next(new AppError('Please provide lang and code.', 400));
 
   const programs = await query(
-    `SELECT prog_id, title, difficulty, supported_languages, time_limit_ms, memory_limit_mb
+    `SELECT prog_id, difficulty, supported_languages,
+            time_limit_ms, memory_limit_mb
      FROM programs WHERE prog_id = ?`,
     [progId]
   );
+
   if (!programs.length) return next(new AppError('Program not found.', 404));
 
   const program = programs[0];
   const supported = parseLangs(program.supported_languages);
 
   if (!supported.includes(lang))
-    return next(new AppError(`Language "${lang}" is not supported for this program.`, 400));
+    return next(
+      new AppError(`Language "${lang}" is not supported for this program.`, 400)
+    );
 
   const publicTestCases = await query(
     `SELECT test_case_id, input_data, expected_output
@@ -136,9 +151,6 @@ export const runProgram = catchAsync(async (req, res, next) => {
      ORDER BY display_order ASC`,
     [progId]
   );
-
-  if (!publicTestCases.length)
-    return next(new AppError('No public test cases found for this program.', 404));
 
   const results = await runAgainstTestCases({
     code,
@@ -149,43 +161,48 @@ export const runProgram = catchAsync(async (req, res, next) => {
   });
 
   const passed = results.filter((r) => r.status === 'passed').length;
-  const total = results.length;
 
   res.status(200).json({
     status: 'success',
     data: {
-      verdict: passed === total ? 'ALL_PASSED' : 'PARTIAL',
+      verdict: passed === results.length ? 'ALL_PASSED' : 'PARTIAL',
       passed,
-      total,
+      total: results.length,
       results,
     },
   });
 });
 
-// POST /api/programs/:progId/submit
+/* =====================================================
+   POST /api/programs/:progId/submit
+===================================================== */
 export const submitProgram = catchAsync(async (req, res, next) => {
   const { progId } = req.params;
   const { lang, code } = req.body;
 
-  if (!lang || !code) return next(new AppError('Please provide lang and code.', 400));
+  if (!lang || !code)
+    return next(new AppError('Please provide lang and code.', 400));
 
   if (req.user.role !== 'student')
     return next(new AppError('Only students can submit programs.', 403));
 
   const programs = await query(
-    `SELECT prog_id, title, difficulty, supported_languages, time_limit_ms, memory_limit_mb
+    `SELECT prog_id, difficulty, supported_languages,
+            time_limit_ms, memory_limit_mb
      FROM programs WHERE prog_id = ?`,
     [progId]
   );
+
   if (!programs.length) return next(new AppError('Program not found.', 404));
 
   const program = programs[0];
   const supported = parseLangs(program.supported_languages);
 
   if (!supported.includes(lang))
-    return next(new AppError(`Language "${lang}" is not supported for this program.`, 400));
+    return next(
+      new AppError(`Language "${lang}" is not supported for this program.`, 400)
+    );
 
-  // Check already solved
   const alreadySolved = await query(
     `SELECT 1 FROM solved_programs WHERE student_user_id = ? AND prog_id = ?`,
     [req.user.user_id, progId]
@@ -199,9 +216,6 @@ export const submitProgram = catchAsync(async (req, res, next) => {
     [progId]
   );
 
-  if (!privateTestCases.length)
-    return next(new AppError('No private test cases found for this program.', 404));
-
   const results = await runAgainstTestCases({
     code,
     lang,
@@ -211,26 +225,25 @@ export const submitProgram = catchAsync(async (req, res, next) => {
   });
 
   const passed = results.filter((r) => r.status === 'passed').length;
-  const total = results.length;
-  const allPassed = passed === total;
+  const allPassed = passed === results.length;
 
   let scoreAwarded = 0;
   let updatedProfile = null;
 
   if (allPassed && !alreadySolved.length) {
-    scoreAwarded = SCORE_MAP[program.difficulty];
+   scoreAwarded = calculateScore(program.difficulty);
 
     const conn = await getConnection();
+
     try {
       await conn.beginTransaction();
 
-      // Insert solved record
       await conn.execute(
-        `INSERT INTO solved_programs (student_user_id, prog_id) VALUES (?, ?)`,
+        `INSERT INTO solved_programs (student_user_id, prog_id)
+         VALUES (?, ?)`,
         [req.user.user_id, progId]
       );
 
-      // Update total_score and programs_solved
       await conn.execute(
         `UPDATE student_profiles
          SET total_score = total_score + ?,
@@ -239,25 +252,17 @@ export const submitProgram = catchAsync(async (req, res, next) => {
         [scoreAwarded, req.user.user_id]
       );
 
-      // Recalculate global ranks for all students
-      await conn.execute(`
-        UPDATE student_profiles sp
-        JOIN (
-          SELECT user_id,
-                 RANK() OVER (ORDER BY total_score DESC, programs_solved DESC) AS new_rank
-          FROM student_profiles
-        ) ranked ON sp.user_id = ranked.user_id
-        SET sp.global_rank = ranked.new_rank
-      `);
-
       await conn.commit();
 
-      // Fetch updated profile
+      // 🔥 Recalculate ranks AFTER successful transaction
+      await recalculateGlobalRanks();
+
       const updated = await query(
         `SELECT total_score, programs_solved, global_rank
          FROM student_profiles WHERE user_id = ?`,
         [req.user.user_id]
       );
+
       updatedProfile = updated[0];
     } catch (err) {
       await conn.rollback();
@@ -272,7 +277,7 @@ export const submitProgram = catchAsync(async (req, res, next) => {
     data: {
       verdict: allPassed ? 'ACCEPTED' : 'WRONG_ANSWER',
       passed,
-      total,
+      total: results.length,
       already_solved: alreadySolved.length > 0,
       score_awarded: scoreAwarded,
       updated_profile: updatedProfile,
@@ -287,8 +292,16 @@ export const submitProgram = catchAsync(async (req, res, next) => {
   });
 });
 
-// Internal helper
-const runAgainstTestCases = async ({ code, lang, testCases, timeLimit, memoryLimit }) => {
+/* =====================================================
+   INTERNAL HELPER
+===================================================== */
+const runAgainstTestCases = async ({
+  code,
+  lang,
+  testCases,
+  timeLimit,
+  memoryLimit,
+}) => {
   const results = [];
 
   for (const tc of testCases) {
@@ -311,9 +324,10 @@ const runAgainstTestCases = async ({ code, lang, testCases, timeLimit, memoryLim
       continue;
     }
 
-    const actualOutput = result.stdout?.trim() ?? '';
-    const expectedOutput = tc.expected_output?.trim() ?? '';
-    const passed = actualOutput === expectedOutput;
+    const actual = result.stdout?.trim() ?? '';
+    const expected = tc.expected_output?.trim() ?? '';
+
+    const passed = actual === expected;
 
     results.push({
       test_case_id: tc.test_case_id,
@@ -321,7 +335,7 @@ const runAgainstTestCases = async ({ code, lang, testCases, timeLimit, memoryLim
       error_type: passed ? null : 'WRONG_ANSWER',
       error_message: passed
         ? null
-        : `Expected:\n${expectedOutput}\n\nGot:\n${actualOutput}`,
+        : `Expected:\n${expected}\n\nGot:\n${actual}`,
       time_taken_ms: result.time_taken_ms,
     });
   }

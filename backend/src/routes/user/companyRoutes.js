@@ -4,8 +4,8 @@ import {
   getCompany,
   getDriveFeedbacks,
   getDrivePrograms,
-} from '../controllers/companyController.js';
-import { protect } from '../middleware/authMiddleware.js';
+} from '../../controllers/user/companyController.js';
+import { protect } from '../../middleware/authMiddleware.js';
 
 const router = express.Router();
 

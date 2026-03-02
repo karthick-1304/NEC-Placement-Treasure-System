@@ -8,8 +8,13 @@ import rateLimit from 'express-rate-limit';
 import globalErrorHandler from '../src/middleware/globalErrorHandler.js';
 import AppError from '../src/utils/appError.js';
 import authRoutes from '../src/routes/authRoutes.js';
-import companyRoutes from '../src/routes/companyRoutes.js';
-import programRoutes from '../src/routes/programRoutes.js';
+import companyRoutes from '../src/routes/user/companyRoutes.js';
+import programRoutes from '../src/routes/user/programRoutes.js';
+import leaderboardRoutes from "../src/routes/user/leaderboardRoutes.js";
+import profileRoutes from '../src/routes/user/programRoutes.js';
+import studentFeedbackRoutes from "./routes/user/studentFeedbackRoutes.js";
+import routes from "./routes/index.js";
+
 
 
 const app = express();
@@ -46,6 +51,8 @@ app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 app.use(cookieParser());
 app.use(compression());
 
+
+
 // Logger
 if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 
@@ -53,6 +60,11 @@ if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 app.use('/api/auth', authRoutes);
 app.use('/api/companies', companyRoutes);
 app.use('/api/programs', programRoutes);
+app.use("/api/leaderboard", leaderboardRoutes);
+app.use('/api/profile', profileRoutes);
+app.use("/api/student/feedback", studentFeedbackRoutes);
+app.use("/uploads", express.static("uploads"));
+app.use("/api/v1", routes);
 
 // Health check
 app.get('/api/health', (req, res) => {

@@ -1,6 +1,6 @@
 import express from 'express';
-import { getProgram, getLangTemplate, runProgram, submitProgram } from '../controllers/programController.js';
-import { protect } from '../middleware/authMiddleware.js';
+import { getProgram, getLangTemplate, runProgram, submitProgram } from '../../controllers/user/programController.js';
+import { protect } from '../../middleware/authMiddleware.js';
 
 const router = express.Router();
 

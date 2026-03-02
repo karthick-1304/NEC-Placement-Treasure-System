@@ -1,6 +1,6 @@
-import { query } from '../utils/db.js';
-import catchAsync from '../utils/catchAsync.js';
-import AppError from '../utils/appError.js';
+import { query } from '../../utils/db.js';
+import catchAsync from '../../utils/catchAsync.js';
+import AppError from '../../utils/appError.js';
 
 // GET /api/companies?page=1&limit=6&sort=alpha&search=tcs
 export const getAllCompanies = catchAsync(async (req, res, next) => {
