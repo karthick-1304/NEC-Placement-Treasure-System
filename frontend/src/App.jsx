@@ -13,12 +13,13 @@ import HomePage from "./pages/HomePage.jsx";
 import CompanyPage from "./pages/CompanyPage.jsx";
 import ProgramPage from "./pages/ProgramPage.jsx";
 import Leaderboard from "./pages/Leaderboard.jsx";
-
-
+import UploadFeedbackPage from "./pages/UploadFeedbackPage.jsx";
+import AdminUploadFeedbackPage from "./pages/admin/AdminUploadFeedbackPage.jsx";
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
+
         {/* Auth pages */}
         <Route element={<AuthLayout />}>
           <Route path="/login" element={<LoginPage />} />
@@ -29,19 +30,22 @@ export default function App() {
         {/* Protected pages */}
         <Route element={<ProtectedRoute />}>
           <Route element={<RootLayout />}>
+
             <Route path="/" element={<HomePage />} />
             <Route path="/companies/:companyId" element={<CompanyPage />} />
+            <Route path="/upload-feedback" element={<UploadFeedbackPage />} />
+            <Route path="/admin/upload-feedback" element={<AdminUploadFeedbackPage />} />
             <Route path="/programs/:progId" element={<ProgramPage />} />
-
-            {/* ✅ NEW Leaderboard route */}
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/progress" element={<ProgressExplorer />} />
             <Route path="/profile" element={<ProfilePage />} />
+
           </Route>
         </Route>
 
-        {/* Fallback */}
+        {/* fallback route */}
         <Route path="*" element={<Navigate to="/" replace />} />
+
       </Routes>
     </BrowserRouter>
   );

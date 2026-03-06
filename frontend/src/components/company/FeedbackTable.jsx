@@ -1,19 +1,41 @@
 import Spinner from '../common/Spinner.jsx';
 import Pagination from '../common/Pagination.jsx';
 import SearchBar from '../common/SearchBar.jsx';
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+export default function FeedbackTable({ feedbacks, pagination, isLoading, error, search, setPage, setSearch, driveId }) {
+  const navigate = useNavigate();
+  const role = useSelector((state) => state.auth.user?.role);
+  
 
-export default function FeedbackTable({ feedbacks, pagination, isLoading, error, page, search, setPage, setSearch }) {
   return (
     <div>
-      <div className="mb-4">
-        <SearchBar value={search} onChange={setSearch} placeholder="Search by name, reg no, email..." />
-      </div>
+      <div className="mb-4 flex items-center justify-between gap-4">
+
+<SearchBar
+  value={search}
+  onChange={setSearch}
+  placeholder="Search by name, reg no, email..."
+/>
+
+<button
+  onClick={() =>
+    role === "admin"
+      ? navigate(`/admin/upload-feedback?driveId=${driveId}`)
+      : navigate(`/upload-feedback?driveId=${driveId}`)
+  }
+  className="bg-primary-600 hover:bg-primary-500 text-white text-sm font-semibold px-4 py-2 rounded-lg"
+>
+  Upload Feedback
+</button>
+
+</div>
 
       {isLoading ? (
         <div className="flex justify-center py-16"><Spinner size="lg" /></div>
       ) : error ? (
         <div className="text-center py-16 text-rose-400">{error}</div>
-      ) : !feedbacks.length ? (
+      ) : !feedbacks || feedbacks.length === 0 ? (
         <div className="text-center py-16 text-dark-400">No feedbacks found for this drive.</div>
       ) : (
         <>

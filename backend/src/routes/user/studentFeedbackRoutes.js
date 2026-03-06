@@ -1,29 +1,31 @@
-// routes/studentFeedbackRoutes.js
-
 import express from "express";
 import {
   submitFeedback,
-  getMyFeedback
+  getDriveFeedbacks
 } from "../../controllers/user/studentFeedbackController.js";
 
 import uploadFeedback from "../../utils/multerFeedback.js";
 import { protect } from "../../middleware/authMiddleware.js";
-import {restrictTo} from "../../middleware/roleMiddleware.js";
+import { restrictTo } from "../../middleware/roleMiddleware.js";
 
 const router = express.Router();
 
-// Only student access
+// All routes require login
 router.use(protect);
-router.use(restrictTo("student"));
 
-// Submit / Update feedback
+// Student submits feedback
 router.post(
   "/",
+  restrictTo("student"),
   uploadFeedback.single("feedback_pdf"),
   submitFeedback
 );
 
-// View my feedback
-router.get("/my", getMyFeedback);
+// View all feedbacks for a drive
+router.get(
+  "/:companyId/drives/:driveId/feedbacks",
+  restrictTo("admin", "student"),
+  getDriveFeedbacks
+);
 
 export default router;

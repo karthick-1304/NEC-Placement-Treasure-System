@@ -201,8 +201,8 @@ export const createFeedback = async ({
 }) => {
   const sql = `
     INSERT INTO placement_feedbacks
-      (drive_id, student_user_id, feedback_pdf_url)
-    VALUES (?, ?, ?)
+      (drive_id, student_user_id, feedback_pdf_url, is_selected)
+    VALUES (?, ?, ?, 0)
   `;
 
   return await query(sql, [driveId, studentUserId, pdfUrl]);

@@ -16,8 +16,11 @@ const useDriveFeedbacks = ({ companyId, driveId }) => {
     setError(null);
     try {
       const data = await getDriveFeedbacksAPI({ companyId, driveId, page, search });
-      setFeedbacks(data.data.feedbacks);
-      setPagination(data.data.pagination);
+
+console.log('API response:', data);
+
+setFeedbacks(data || []);
+setPagination(null); // since backend no longer sends pagination
     } catch (err) {
       setError(err.message);
     } finally {
