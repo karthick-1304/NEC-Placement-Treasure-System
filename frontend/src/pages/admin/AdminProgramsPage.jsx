@@ -16,7 +16,14 @@ function AdminProgramsPage() {
 
   const [form, setForm] = useState({
     title: "",
+    description: "",
     difficulty: "",
+    constraints_text: "",
+    time_limit_ms: 2000,
+    memory_limit_mb: 256,
+    supported_languages: [],
+    public_testcase_count: 0,
+    private_testcase_count: 0,
   });
 
   const loadPrograms = async () => {
@@ -41,10 +48,29 @@ function AdminProgramsPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
     try {
-      await createProgram(form);
-setForm({ title: "", difficulty: "" });
-setPage(1);
+      const payload = {
+        ...form,
+      };
+  
+      await createProgram(payload);
+  
+      setForm({
+        title: "",
+        description: "",
+        difficulty: "",
+        constraints_text: "",
+        time_limit_ms: 2000,
+        memory_limit_mb: 256,
+        supported_languages: [],
+        public_testcase_count: 0,
+        private_testcase_count: 0,
+      });
+  
+      setPage(1);
+      loadPrograms();
+  
     } catch (err) {
       console.error("Create program error", err);
     }
@@ -121,12 +147,100 @@ setPage(1);
   <option value="hard">Hard</option>
 </select>
 
-          <button
-            type="submit"
-            className="bg-primary-600 hover:bg-primary-500 rounded-lg px-4 py-2 font-medium transition"
-          >
-            Create Program
-          </button>
+<input
+  className="bg-dark-900 border border-dark-600 rounded-lg px-3 py-2 md:col-span-3"
+  placeholder="Description"
+  value={form.description}
+  onChange={(e) => setForm({ ...form, description: e.target.value })}
+/>
+
+<input
+  className="bg-dark-900 border border-dark-600 rounded-lg px-3 py-2"
+  placeholder="Constraints"
+  value={form.constraints_text}
+  onChange={(e) =>
+    setForm({ ...form, constraints_text: e.target.value })
+  }
+/>
+
+<input
+  type="number"
+  className="bg-dark-900 border border-dark-600 rounded-lg px-3 py-2"
+  placeholder="Time Limit (ms)"
+  value={form.time_limit_ms}
+  onChange={(e) =>
+    setForm({ ...form, time_limit_ms: Number(e.target.value) })
+  }
+/>
+
+<input
+  type="number"
+  className="bg-dark-900 border border-dark-600 rounded-lg px-3 py-2"
+  placeholder="Memory Limit (MB)"
+  value={form.memory_limit_mb}
+  onChange={(e) =>
+    setForm({ ...form, memory_limit_mb: Number(e.target.value) })
+  }
+/>
+
+<div className="md:col-span-3">
+  <p className="text-sm mb-2">Supported Languages</p>
+
+  <div className="flex gap-4 flex-wrap">
+
+    {["c", "cpp", "java", "python"].map((lang) => (
+      <label key={lang} className="flex items-center gap-2">
+        <input
+          type="checkbox"
+          checked={form.supported_languages.includes(lang)}
+          onChange={(e) => {
+            if (e.target.checked) {
+              setForm({
+                ...form,
+                supported_languages: [...form.supported_languages, lang],
+              });
+            } else {
+              setForm({
+                ...form,
+                supported_languages: form.supported_languages.filter(
+                  (l) => l !== lang
+                ),
+              });
+            }
+          }}
+        />
+        {lang.toUpperCase()}
+      </label>
+    ))}
+
+  </div>
+</div>
+
+<input
+  type="number"
+  className="bg-dark-900 border border-dark-600 rounded-lg px-3 py-2"
+  placeholder="Public Testcases"
+  value={form.public_testcase_count || ""}
+  onChange={(e) =>
+    setForm({ ...form, public_testcase_count: Number(e.target.value) })
+  }
+/>
+
+<input
+  type="number"
+  className="bg-dark-900 border border-dark-600 rounded-lg px-3 py-2"
+  placeholder="Private Testcases"
+  value={form.private_testcase_count || ""}
+  onChange={(e) =>
+    setForm({ ...form, private_testcase_count: Number(e.target.value) })
+  }
+/>
+<button
+  type="submit"
+  className="md:col-span-3 bg-primary-600 hover:bg-primary-500 rounded-lg px-4 py-2 font-medium transition"
+>
+  Create Program
+</button>
         </form>
       </div>
 

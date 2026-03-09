@@ -14,11 +14,14 @@ function AdminStudentsPage() {
   const [hasMore, setHasMore] = useState(true);
 
   const [form, setForm] = useState({
-    name: "",
+    full_name: "",
     email: "",
-    department: "",
-    year: ""
+    password: "",
+    reg_no: "",
+    dept_id: "",
+    batch_year: ""
   });
+  const [successMsg, setSuccessMsg] = useState("");
 
   useEffect(() => {
     const loadStudents = async () => {
@@ -47,14 +50,25 @@ function AdminStudentsPage() {
     }
   };
 
+  setTimeout(() => setSuccessMsg(""), 2000);
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       await createStudent(form);
-      setForm({ name: "", email: "", department: "", year: "" });
+      setSuccessMsg("Student added successfully!");
+      setForm({
+        full_name: "",
+        email: "",
+        password: "",
+        reg_no: "",
+        dept_id: "",
+        batch_year: ""
+      });
       refreshStudents();
     } catch (err) {
-      console.error("Create student error", err);
+      console.error("Create student error:", err);
+console.error("Backend response:", err.response);
+console.error("Backend data:", err.response?.data);
     }
   };
 
@@ -90,51 +104,83 @@ function AdminStudentsPage() {
         <h3 className="text-lg font-medium mb-4">Add New Student</h3>
 
         <form
-          onSubmit={handleSubmit}
-          className="grid grid-cols-1 md:grid-cols-4 gap-4"
-        >
-          <input
-            className="bg-dark-900 border border-dark-600 rounded-lg px-3 py-2"
-            placeholder="Name"
-            value={form.name}
-            onChange={(e) =>
-              setForm({ ...form, name: e.target.value })
-            }
-          />
+  onSubmit={handleSubmit}
+  className="grid grid-cols-1 md:grid-cols-3 gap-4"
+>
+  <input
+    className="bg-dark-900 border border-dark-600 rounded-lg px-3 py-2"
+    placeholder="Full Name"
+    value={form.full_name}
+    onChange={(e) =>
+      setForm({ ...form, full_name: e.target.value })
+    }
+  />
 
-          <input
-            className="bg-dark-900 border border-dark-600 rounded-lg px-3 py-2"
-            placeholder="Email"
-            value={form.email}
-            onChange={(e) =>
-              setForm({ ...form, email: e.target.value })
-            }
-          />
+  <input
+    className="bg-dark-900 border border-dark-600 rounded-lg px-3 py-2"
+    placeholder="Email"
+    type="email"
+    value={form.email}
+    onChange={(e) =>
+      setForm({ ...form, email: e.target.value })
+    }
+  />
 
-          <input
-            className="bg-dark-900 border border-dark-600 rounded-lg px-3 py-2"
-            placeholder="Department"
-            value={form.department}
-            onChange={(e) =>
-              setForm({ ...form, department: e.target.value })
-            }
-          />
+<input
+  className="bg-dark-900 border border-dark-600 rounded-lg px-3 py-2"
+  placeholder="Password (Ex: Test@1234)"
+  type="password"
+  value={form.password}
+  onChange={(e) =>
+    setForm({ ...form, password: e.target.value })
+  }
+/>
 
-          <input
-            className="bg-dark-900 border border-dark-600 rounded-lg px-3 py-2"
-            placeholder="Year"
-            value={form.year}
-            onChange={(e) =>
-              setForm({ ...form, year: e.target.value })
-            }
-          />
+  <input
+    className="bg-dark-900 border border-dark-600 rounded-lg px-3 py-2"
+    placeholder="Register Number"
+    value={form.reg_no}
+    onChange={(e) =>
+      setForm({ ...form, reg_no: e.target.value })
+    }
+  />
 
-          <button
-            className="col-span-full md:col-span-1 bg-primary-600 hover:bg-primary-500 rounded-lg px-4 py-2 font-medium transition"
-          >
-            Create Student
-          </button>
-        </form>
+<select
+  className="bg-dark-900 border border-dark-600 rounded-lg px-3 py-2"
+  value={form.dept_id}
+  onChange={(e) =>
+    setForm({ ...form, dept_id: Number(e.target.value) })
+  }
+>
+    <option value="">Select Department</option>
+    <option value="1">CSE</option>
+    <option value="2">IT</option>
+    <option value="3">ECE</option>
+    <option value="4">EEE</option>
+    <option value="5">MECH</option>
+  </select>
+
+  <input
+    className="bg-dark-900 border border-dark-600 rounded-lg px-3 py-2"
+    placeholder="Batch Year (ex: 2025)"
+    value={form.batch_year}
+    onChange={(e) =>
+      setForm({ ...form, batch_year: Number(e.target.value) })
+    }
+  />
+
+<button
+  className="md:col-span-3 bg-primary-600 hover:bg-primary-500 rounded-lg px-4 py-2 font-medium transition"
+>
+  Create Student
+</button>
+
+{successMsg && (
+  <div className="md:col-span-3 text-green-400 bg-green-900/20 border border-green-700 px-4 py-2 rounded-lg text-sm">
+    {successMsg}
+  </div>
+)}
+</form>
       </div>
 
       {/* Students List */}
