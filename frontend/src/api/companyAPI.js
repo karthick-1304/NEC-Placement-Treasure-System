@@ -13,10 +13,11 @@ export const getCompanyAPI = async (companyId) => {
 };
 
 export const getDriveFeedbacksAPI = async ({ companyId, driveId, page = 1, search = '' }) => {
-  const res = await axiosInstance.get(`/companies/${companyId}/drives/${driveId}/feedbacks`, {
-    params: { page, search },
-  });
-  return res.data;
+  const res = await axiosInstance.get(
+    `/student/feedback/${companyId}/drives/${driveId}/feedbacks`,
+    { params: { page, search } }
+  );
+  return res.data.data;   // ⭐ FIX
 };
 
 export const getDriveProgramsAPI = async ({ companyId, driveId, page = 1, search = '' }) => {

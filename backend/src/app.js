@@ -11,9 +11,13 @@ import authRoutes from '../src/routes/authRoutes.js';
 import companyRoutes from '../src/routes/user/companyRoutes.js';
 import programRoutes from '../src/routes/user/programRoutes.js';
 import leaderboardRoutes from "../src/routes/user/leaderboardRoutes.js";
-import profileRoutes from '../src/routes/user/programRoutes.js';
+import profileRoutes from '../src/routes/user/profileRoutes.js';
 import studentFeedbackRoutes from "./routes/user/studentFeedbackRoutes.js";
+import adminFeedbackRoutes from "./routes/admin/adminFeedbackRoutes.js";
+import adminProgramRoutes from "./routes/admin/adminProgramRoutes.js";
+import adminRoutes from "./routes/admin/adminRoutes.js";
 import routes from "./routes/index.js";
+import path from 'path';
 
 
 
@@ -63,7 +67,13 @@ app.use('/api/programs', programRoutes);
 app.use("/api/leaderboard", leaderboardRoutes);
 app.use('/api/profile', profileRoutes);
 app.use("/api/student/feedback", studentFeedbackRoutes);
-app.use("/uploads", express.static("uploads"));
+//app.use("/api/admin/programs", adminProgramRoutes);
+//app.use("/api/admin", adminFeedbackRoutes);
+app.use("/api/admin", adminRoutes);
+app.use(
+  '/uploads',
+  express.static(path.join(process.cwd(), 'uploads'))
+);
 app.use("/api/v1", routes);
 
 // Health check

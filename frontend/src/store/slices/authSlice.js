@@ -52,9 +52,13 @@ const authSlice = createSlice({
       // login
       .addCase(loginThunk.pending,   (state) => { state.isLoading = true;  state.error = null; })
       .addCase(loginThunk.fulfilled, (state, action) => {
+        console.log("LOGIN RESPONSE:", action.payload);
+      
         state.isLoading = false;
         state.user      = action.payload.data.user;
         state.token     = action.payload.token;
+      
+        localStorage.setItem("role", action.payload.data.user.role);
       })
       .addCase(loginThunk.rejected,  (state, action) => { state.isLoading = false; state.error = action.payload; })
       // getMe

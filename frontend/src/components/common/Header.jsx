@@ -6,9 +6,9 @@ import { logoutThunk } from '../../store/slices/authSlice.js';
 import Spinner from './Spinner.jsx';
 
 const NAV_LINKS = [
-  { label: 'Home',             to: '/',          roles: ['student','staff','dept_head','admin'] },
-  { label: 'Progress Explorer',to: '/progress',  roles: ['student','staff','dept_head','admin'] },
-  { label: 'Admin Settings',   to: '/admin',     roles: ['admin'] },
+  { label: 'Home',             to: '/',           roles: ['student','staff','dept_head','admin'] },
+  { label: 'Leaderboard',      to: '/leaderboard',roles: ['student','staff','dept_head','admin'] }, // ✅ NEW
+  { label: 'Progress Explorer',to: '/progress',   roles: ['student','staff','dept_head','admin'] },
 ];
 
 export default function Header() {
@@ -234,34 +234,63 @@ export default function Header() {
                 </div>
               )}
 
-              <div className="p-2">
-                <Link
-                  to="/profile"
-                  onClick={() => setOpen(false)}
-                  className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-dark-300 hover:text-white hover:bg-dark-700/80 transition-all text-sm"
-                >
-                  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                  </svg>
-                  View Profile
-                </Link>
+<div className="p-2">
+  
+{role === 'admin' && (
+  <>
+    <Link
+      to="/admin/students"
+      onClick={() => setOpen(false)}
+      className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-dark-300 hover:text-white hover:bg-dark-700/80 transition-all text-sm"
+    >
+      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+          d="M17 20h5V4H2v16h5m10 0v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6m10 0H7" />
+      </svg>
+      Manage Students
+    </Link>
 
-                <button
-                  onClick={handleLogout}
-                  disabled={loggingOut}
-                  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-all text-sm disabled:opacity-50"
-                >
-                  {loggingOut
-                    ? <Spinner size="sm" color="white" />
-                    : <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-                          d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
-                      </svg>
-                  }
-                  {loggingOut ? 'Logging out...' : 'Logout'}
-                </button>
-              </div>
+    <Link
+      to="/admin/programs"
+      onClick={() => setOpen(false)}
+      className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-dark-300 hover:text-white hover:bg-dark-700/80 transition-all text-sm"
+    >
+      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+          d="M9.75 17L8 21l-1.75-4M4 4h16v10H4z" />
+      </svg>
+      Manage Programs
+    </Link>
+  </>
+)}
+<Link
+  to="/profile"
+  onClick={() => setOpen(false)}
+  className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-dark-300 hover:text-white hover:bg-dark-700/80 transition-all text-sm"
+>
+  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+  </svg>
+  View Profile
+</Link>
+
+<button
+  onClick={handleLogout}
+  disabled={loggingOut}
+  className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-all text-sm disabled:opacity-50"
+>
+  {loggingOut
+    ? <Spinner size="sm" color="white" />
+    : <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+          d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+      </svg>
+  }
+  {loggingOut ? 'Logging out...' : 'Logout'}
+</button>
+
+</div>
             </div>
           )}
         </div>

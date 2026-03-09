@@ -5,7 +5,9 @@ import {
   getAllProgramsQuery,
   getProgramByIdQuery,
   updateProgramQuery,
-  deleteProgramQuery
+  deleteProgramQuery,
+  countProgramsQuery
+
 } from "../../queries/admin/adminProgramQueries.js";
 
 /**
@@ -47,10 +49,20 @@ export const createProgramService = async (data, adminId) => {
  * 📄 Get All Programs Service
  */
 export const getAllProgramsService = async (filters) => {
-  const programs = await getAllProgramsQuery(filters);
-  return programs;
-};
 
+  const page = Number(filters.page) || 1;
+  const limit = Number(filters.limit) || 10;
+
+  const programs = await getAllProgramsQuery(filters);
+  const total = await countProgramsQuery(filters.difficulty);
+
+  return {
+    page,
+    totalPages: Math.ceil(total / limit),
+    results: programs.length,
+    data: programs
+  };
+};
 /**
  * 🔍 Get Program By ID Service
  */

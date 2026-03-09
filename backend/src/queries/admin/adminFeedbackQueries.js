@@ -197,15 +197,16 @@ export const deleteFeedback = async (feedbackId) => {
 export const createFeedback = async ({
   driveId,
   studentUserId,
-  pdfUrl
+  pdfUrl,
+  isSelected = 0   // default to 0 if not provided
 }) => {
   const sql = `
     INSERT INTO placement_feedbacks
-      (drive_id, student_user_id, feedback_pdf_url)
-    VALUES (?, ?, ?)
+      (drive_id, student_user_id, feedback_pdf_url, is_selected)
+    VALUES (?, ?, ?, ?)
   `;
 
-  return await query(sql, [driveId, studentUserId, pdfUrl]);
+  return await query(sql, [driveId, studentUserId, pdfUrl, isSelected]);
 };
 
 /**

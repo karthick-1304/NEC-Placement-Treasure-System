@@ -61,6 +61,7 @@ export default function CompanyPage() {
 
       {activeTab === 'feedbacks' && (
         <FeedbackTable
+        driveId={selectedDriveId}
           feedbacks={feedbackProps.feedbacks}
           pagination={feedbackProps.pagination}
           isLoading={feedbackProps.isLoading}

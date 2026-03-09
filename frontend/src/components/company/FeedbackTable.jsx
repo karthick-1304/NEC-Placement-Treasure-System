@@ -1,19 +1,53 @@
 import Spinner from '../common/Spinner.jsx';
 import Pagination from '../common/Pagination.jsx';
 import SearchBar from '../common/SearchBar.jsx';
+import { useNavigate } from "react-router-dom";
+import { useSelector } from "react-redux";
+import { deleteFeedback } from "../../api/feedbackAPI";
 
-export default function FeedbackTable({ feedbacks, pagination, isLoading, error, page, search, setPage, setSearch }) {
+export default function FeedbackTable({ feedbacks, pagination, isLoading, error, search, setPage, setSearch, driveId }) {
+  const navigate = useNavigate();
+  const role = useSelector((state) => state.auth.user?.role);
+  const isAdmin = role === "admin";
+
+  const handleDelete = async (id) => {
+    if (!window.confirm("Delete this feedback?")) return;
+
+    try {
+      await deleteFeedback(id);
+      window.location.reload();
+    } catch (err) {
+      console.error(err);
+      alert("Delete failed");
+    }
+  };
+
   return (
     <div>
-      <div className="mb-4">
-        <SearchBar value={search} onChange={setSearch} placeholder="Search by name, reg no, email..." />
+      <div className="mb-4 flex items-center justify-between gap-4">
+        <SearchBar
+          value={search}
+          onChange={setSearch}
+          placeholder="Search by name, reg no, email..."
+        />
+
+        <button
+          onClick={() =>
+            role === "admin"
+              ? navigate(`/admin/upload-feedback?driveId=${driveId}`)
+              : navigate(`/upload-feedback?driveId=${driveId}`)
+          }
+          className="bg-primary-600 hover:bg-primary-500 text-white text-sm font-semibold px-4 py-2 rounded-lg"
+        >
+          Upload Feedback
+        </button>
       </div>
 
       {isLoading ? (
         <div className="flex justify-center py-16"><Spinner size="lg" /></div>
       ) : error ? (
         <div className="text-center py-16 text-rose-400">{error}</div>
-      ) : !feedbacks.length ? (
+      ) : !feedbacks || feedbacks.length === 0 ? (
         <div className="text-center py-16 text-dark-400">No feedbacks found for this drive.</div>
       ) : (
         <>
@@ -21,7 +55,7 @@ export default function FeedbackTable({ feedbacks, pagination, isLoading, error,
             <table className="w-full text-sm">
               <thead>
                 <tr className="bg-dark-800/80 border-b border-dark-700">
-                  {['Student Name', 'Reg No', 'Email', 'Status', 'Feedback PDF'].map((h) => (
+                  {['Student Name', 'Reg No','Email','Status','Feedback PDF',...(isAdmin ? ['Actions'] : [])].map((h) => (
                     <th key={h} className="px-4 py-3.5 text-left text-xs font-semibold text-dark-400 uppercase tracking-wider whitespace-nowrap">
                       {h}
                     </th>
@@ -64,6 +98,16 @@ export default function FeedbackTable({ feedbacks, pagination, isLoading, error,
                         : <span className="text-dark-600 text-xs">No PDF</span>
                       }
                     </td>
+                    {isAdmin && (
+                      <td className="px-4 py-3.5 flex gap-2">
+                        <button
+                          onClick={() => handleDelete(fb.feedback_id)}
+                          className="bg-rose-600 hover:bg-rose-500 text-white text-xs px-2 py-1 rounded"
+                        >
+                          Delete
+                        </button>
+                      </td>
+                    )}
                   </tr>
                 ))}
               </tbody>
