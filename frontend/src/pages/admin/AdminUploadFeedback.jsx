@@ -1,12 +1,11 @@
 import { useState } from "react";
-import { adminUploadFeedback } from "../../api/feedbackAPI";
 import { useSearchParams } from "react-router-dom";
+import { uploadFeedback } from "../../api/feedbackAPI";
 
-function AdminUploadFeedback() {
-
+function UploadFeedback() {
   const [file, setFile] = useState(null);
-  const [studentId, setStudentId] = useState("");
   const [message, setMessage] = useState("");
+  const [status, setStatus] = useState("not_selected"); // <-- new state for selection status
 
   const [params] = useSearchParams();
   const driveId = params.get("driveId");
@@ -14,8 +13,8 @@ function AdminUploadFeedback() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!file || !studentId) {
-      setMessage("All fields are required");
+    if (!file) {
+      setMessage("Please select a PDF file");
       return;
     }
 
@@ -26,27 +25,25 @@ function AdminUploadFeedback() {
 
     const formData = new FormData();
     formData.append("feedback_pdf", file);
-    formData.append("drive_id", driveId);
-    formData.append("student_user_id", studentId);
+    formData.append("drive_id", String(driveId));
+    formData.append("is_selected", status === "selected" ? "1" : "0"); // <-- same logic as admin
 
     try {
-      await adminUploadFeedback(formData);
+      await uploadFeedback(formData);
       setMessage("Feedback uploaded successfully");
       setFile(null);
-      setStudentId("");
+      setStatus("not_selected"); // reset to default
     } catch (err) {
-      console.error(err);
+      console.error(err.response?.data || err);
       setMessage("Upload failed");
     }
   };
 
   return (
     <div className="max-w-screen-xl mx-auto px-4 py-10 animate-slide-up">
-
       <div className="max-w-xl mx-auto bg-dark-800 border border-dark-700 rounded-xl shadow-lg p-8">
-
         <h2 className="text-2xl font-semibold text-white mb-2">
-          Admin Upload Feedback
+          Upload Placement Feedback
         </h2>
 
         <p className="text-dark-400 mb-6">
@@ -54,41 +51,11 @@ function AdminUploadFeedback() {
         </p>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
-
-          {/* Student ID */}
-          <div>
-            <label className="block text-sm text-dark-300 mb-2">
-              Student User ID
-            </label>
-
-            <input
-              type="text"
-              placeholder="Enter Student User ID"
-              value={studentId}
-              onChange={(e) => setStudentId(e.target.value)}
-              className="
-                w-full
-                px-3
-                py-2
-                rounded-lg
-                bg-dark-700
-                border
-                border-dark-600
-                text-white
-                placeholder-dark-400
-                focus:outline-none
-                focus:ring-2
-                focus:ring-primary-500
-              "
-            />
-          </div>
-
           {/* File Input */}
           <div>
             <label className="block text-sm text-dark-300 mb-2">
               Upload Feedback PDF
             </label>
-
             <input
               type="file"
               accept="application/pdf"
@@ -112,6 +79,33 @@ function AdminUploadFeedback() {
             />
           </div>
 
+          {/* Status Select */}
+          <div>
+            <label className="block text-sm text-dark-300 mb-2">
+              Selection Status
+            </label>
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              className="
+                w-full
+                px-3
+                py-2
+                rounded-lg
+                bg-dark-700
+                border
+                border-dark-600
+                text-white
+                focus:outline-none
+                focus:ring-2
+                focus:ring-primary-500
+              "
+            >
+              <option value="not_selected">Not Selected</option>
+              <option value="selected">Selected</option>
+            </select>
+          </div>
+
           {/* Upload Button */}
           <button
             type="submit"
@@ -127,7 +121,6 @@ function AdminUploadFeedback() {
           >
             Upload Feedback
           </button>
-
         </form>
 
         {/* Message */}
@@ -142,10 +135,9 @@ function AdminUploadFeedback() {
             {message}
           </p>
         )}
-
       </div>
     </div>
   );
 }
 
-export default AdminUploadFeedback;
+export default UploadFeedback;

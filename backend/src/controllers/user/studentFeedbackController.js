@@ -1,57 +1,37 @@
 // controllers/studentFeedbackController.js
-import { query } from "../../utils/db.js";
 import db from "../../utils/db.js";
-import {
-  addOrUpdateFeedback,
-} from "../../services/user/studentFeedbackService.js";
+import AppError from "../../utils/appError.js";
+import catchAsync from "../../utils/catchAsync.js";
+import { addOrUpdateFeedback } from "../../services/user/studentFeedbackService.js";
 
-export const submitFeedback = async (req, res) => {
-  try {
-    const userId = req.user.user_id;
+export const submitFeedback = catchAsync(async (req, res) => {
+  const userId = req.user.user_id;
+  const { drive_id, is_selected } = req.body;
 
-    if (!req.body.drive_id) {
-      return res.status(400).json({
-        success: false,
-        message: "drive_id is required"
-      });
-    }
+  // ✅ Validation
+  if (!drive_id) throw new AppError("Drive ID is required", 400);
+  if (!req.file) throw new AppError("Feedback PDF is required", 400);
 
-    if (!req.file) {
-      return res.status(400).json({
-        success: false,
-        message: "Feedback PDF is required"
-      });
-    }
+  const pdfUrl = `/uploads/feedbacks/${req.file.filename}`;
 
-    const filePath = `/uploads/feedbacks/${req.file.filename}`;
+  const result = await addOrUpdateFeedback(userId, {
+    drive_id: parseInt(drive_id, 10),
+    feedback_pdf_url: pdfUrl,
+    is_selected: is_selected === "1" ? 1 : 0  // string → number
+  });
 
-    const data = {
-      drive_id: Number(req.body.drive_id),
-      feedback_pdf_url: filePath,
-      is_selected: Number(req.body.is_selected) || 0
-    };
-
-    const result = await addOrUpdateFeedback(userId, data);
-
-    res.status(200).json({
-      success: true,
-      ...result
-    });
-
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({
-      success: false,
-      message: error.message || "Failed to submit feedback"
-    });
-  }
-};
+  res.status(201).json({
+    status: "success",
+    data: result
+  });
+});
 
 // controllers/user/studentFeedbackController.js
 export const getDriveFeedbacks = async (req, res) => {
-  console.log("PARAMS RECEIVED:", req.params);
   try {
-    const { driveId } = req.params;
+    const driveId = req.params.driveId || req.body.drive_id; // fallback to body if needed
+
+    if (!driveId) throw new AppError("Drive ID is required", 400);
 
     const [rows] = await db.query(
       `SELECT f.feedback_id,
@@ -74,8 +54,11 @@ export const getDriveFeedbacks = async (req, res) => {
         : null
     }));
 
-    res.status(200).json(mapped);
-
+    res.status(200).json({
+      status: "success",
+      count: mapped.length,
+      data: mapped
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Failed to fetch feedbacks" });

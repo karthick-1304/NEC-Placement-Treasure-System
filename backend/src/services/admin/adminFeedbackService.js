@@ -84,14 +84,11 @@ export const deleteFeedbackService = async (feedbackId) => {
 export const addFeedbackService = async ({
   driveId,
   studentUserId,
-  pdfUrl
+  pdfUrl,
+  isSelected = 0   // default to 0
 }) => {
   // 🔎 Prevent duplicate submission
-  const existing = await checkExistingFeedback(
-    driveId,
-    studentUserId
-  );
-
+  const existing = await checkExistingFeedback(driveId, studentUserId);
   if (existing.length) {
     throw new AppError(
       "You have already submitted feedback for this drive",
@@ -102,7 +99,8 @@ export const addFeedbackService = async ({
   await createFeedback({
     driveId,
     studentUserId,
-    pdfUrl
+    pdfUrl,
+    isSelected   // pass it to the query
   });
 
   return { message: "Feedback submitted successfully" };

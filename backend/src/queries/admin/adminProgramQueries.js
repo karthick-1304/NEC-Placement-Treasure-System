@@ -162,3 +162,15 @@ export const deleteProgramQuery = async (progId) => {
     [progId]
   );
 };
+export const countProgramsQuery = async (difficulty) => {
+  let sql = `SELECT COUNT(*) as total FROM programs WHERE 1=1`;
+  const values = [];
+
+  if (difficulty) {
+    sql += " AND difficulty = ?";
+    values.push(difficulty);
+  }
+
+  const [rows] = await pool.execute(sql, values);
+  return rows[0].total;
+};

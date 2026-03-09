@@ -17,7 +17,7 @@ export const getDriveFeedbacksAPI = async ({ companyId, driveId, page = 1, searc
     `/student/feedback/${companyId}/drives/${driveId}/feedbacks`,
     { params: { page, search } }
   );
-  return res.data;
+  return res.data.data;   // ⭐ FIX
 };
 
 export const getDriveProgramsAPI = async ({ companyId, driveId, page = 1, search = '' }) => {

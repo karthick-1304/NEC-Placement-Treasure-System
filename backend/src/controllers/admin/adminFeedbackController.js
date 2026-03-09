@@ -63,26 +63,19 @@ export const deleteFeedback = catchAsync(async (req, res) => {
 });
 
 export const addFeedback = catchAsync(async (req, res) => {
-  const { drive_id, student_user_id } = req.body;
+  const { drive_id, student_user_id, is_selected } = req.body;
 
-  if (!drive_id) {
-    throw new AppError("Drive ID is required", 400);
-  }
-
-  if (!student_user_id) {
-    throw new AppError("Student User ID is required", 400);
-  }
-
-  if (!req.file) {
-    throw new AppError("Feedback PDF is required", 400);
-  }
+  if (!drive_id) throw new AppError("Drive ID is required", 400);
+  if (!student_user_id) throw new AppError("Student User ID is required", 400);
+  if (!req.file) throw new AppError("Feedback PDF is required", 400);
 
   const pdfUrl = `/uploads/feedbacks/${req.file.filename}`;
 
   const result = await addFeedbackService({
-    driveId: Number(drive_id),
-    studentUserId: Number(student_user_id),
-    pdfUrl
+    driveId: parseInt(drive_id, 10),
+    studentUserId: parseInt(student_user_id, 10),
+    pdfUrl,
+    isSelected: is_selected === "1" ? 1 : 0  // convert string to number
   });
 
   res.status(201).json({

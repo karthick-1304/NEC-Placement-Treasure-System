@@ -9,7 +9,6 @@ const NAV_LINKS = [
   { label: 'Home',             to: '/',           roles: ['student','staff','dept_head','admin'] },
   { label: 'Leaderboard',      to: '/leaderboard',roles: ['student','staff','dept_head','admin'] }, // ✅ NEW
   { label: 'Progress Explorer',to: '/progress',   roles: ['student','staff','dept_head','admin'] },
-  { label: 'Admin Settings',   to: '/admin',      roles: ['admin'] },
 ];
 
 export default function Header() {
@@ -236,21 +235,34 @@ export default function Header() {
               )}
 
 <div className="p-2">
-
+  
 {role === 'admin' && (
-  <Link
-    to="/admin/feedbacks"
-    onClick={() => setOpen(false)}
-    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-dark-300 hover:text-white hover:bg-dark-700/80 transition-all text-sm"
-  >
-    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-        d="M9 12h6m-6 4h6M7 4h10a2 2 0 012 2v14l-4-2-4 2-4-2-4 2V6a2 2 0 012-2z" />
-    </svg>
-    Manage Feedbacks
-  </Link>
-)}
+  <>
+    <Link
+      to="/admin/students"
+      onClick={() => setOpen(false)}
+      className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-dark-300 hover:text-white hover:bg-dark-700/80 transition-all text-sm"
+    >
+      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+          d="M17 20h5V4H2v16h5m10 0v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6m10 0H7" />
+      </svg>
+      Manage Students
+    </Link>
 
+    <Link
+      to="/admin/programs"
+      onClick={() => setOpen(false)}
+      className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-dark-300 hover:text-white hover:bg-dark-700/80 transition-all text-sm"
+    >
+      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+          d="M9.75 17L8 21l-1.75-4M4 4h16v10H4z" />
+      </svg>
+      Manage Programs
+    </Link>
+  </>
+)}
 <Link
   to="/profile"
   onClick={() => setOpen(false)}
