@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import axiosInstance from "../api/axiosInstance.js";
+import DifficultyStats from "./DifficultyStats.jsx";
+import { Link } from "react-router-dom";
 
 export default function ProfilePage() {
 
@@ -38,7 +40,6 @@ export default function ProfilePage() {
   }
 
   const solved = profile.programs_solved || 0;
-  const totalScore = profile.total_score || 0;
 
   let level = "Beginner";
   if (solved >= 50) level = "Intermediate";
@@ -75,6 +76,12 @@ export default function ProfilePage() {
       </Section>
 
 
+      {/* DIFFICULTY STATS */}
+      <Section title="Difficulty Stats">
+        <DifficultyStats />
+      </Section>
+
+
       {/* SKILL LEVEL */}
       <Section title="Skill Level">
 
@@ -87,30 +94,54 @@ export default function ProfilePage() {
 
 
       {/* RECENT SOLVES */}
-      <Section title="Recent Solved Problems">
+      <div className="mb-8">
+
+        <div className="flex justify-between items-center mb-3">
+          <h2 className="text-lg font-semibold">
+            Recent Solved Problems
+          </h2>
+
+          {/* VIEW FULL HISTORY BUTTON */}
+          <Link
+            to="/solved"
+            className="text-indigo-400 text-sm hover:underline"
+          >
+            View Full History →
+          </Link>
+        </div>
 
         {recentSolves.length === 0 ? (
           <p>No problems solved yet</p>
         ) : (
-          recentSolves.map((prob) => (
+          <div className="space-y-3">
 
-            <div
-              key={prob.prog_id}
-              className="bg-dark-800 p-4 rounded-lg shadow flex justify-between"
-            >
+            {recentSolves.map((prob) => (
 
-              <p>{prob.title}</p>
+              <div
+                key={prob.prog_id}
+                className="bg-dark-800 p-4 rounded-lg shadow flex justify-between items-center"
+              >
 
-              <span className="text-green-400 text-sm">
-                {prob.difficulty}
-              </span>
+                <div>
+                  <p className="font-medium">{prob.title}</p>
 
-            </div>
+                  <p className="text-xs text-gray-400">
+                    Solved on {new Date(prob.solved_at).toLocaleDateString()}
+                  </p>
+                </div>
 
-          ))
+                <span className="text-green-400 text-sm">
+                  {prob.difficulty}
+                </span>
+
+              </div>
+
+            ))}
+
+          </div>
         )}
 
-      </Section>
+      </div>
 
     </div>
   );

@@ -16,6 +16,8 @@ import studentFeedbackRoutes from "./routes/user/studentFeedbackRoutes.js";
 import adminFeedbackRoutes from "./routes/admin/adminFeedbackRoutes.js";
 import adminProgramRoutes from "./routes/admin/adminProgramRoutes.js";
 import adminRoutes from "./routes/admin/adminRoutes.js";
+import solvedRoutes from "./routes/user/solvedRoutes.js";
+import statsRoutes from "./routes/user/statsRoutes.js";
 import routes from "./routes/index.js";
 import path from 'path';
 
@@ -67,8 +69,10 @@ app.use('/api/programs', programRoutes);
 app.use("/api/leaderboard", leaderboardRoutes);
 app.use('/api/profile', profileRoutes);
 app.use("/api/student/feedback", studentFeedbackRoutes);
+app.use("/api/stats", statsRoutes);
 //app.use("/api/admin/programs", adminProgramRoutes);
 //app.use("/api/admin", adminFeedbackRoutes);
+app.use("/api/solved", solvedRoutes);
 app.use("/api/admin", adminRoutes);
 app.use(
   '/uploads',
