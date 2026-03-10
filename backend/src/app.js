@@ -21,6 +21,7 @@ import solvedRoutes from "./routes/user/solvedRoutes.js";
 import statsRoutes from "./routes/user/statsRoutes.js";
 import heatmapRoutes from "./routes/user/heatmapRoutes.js";
 import routes from "./routes/index.js";
+import progressRoutes from "./routes/user/progressRoutes.js";
 import path from 'path';
 
 
@@ -73,6 +74,7 @@ app.use('/api/programs', programRoutes);
 app.use("/api/leaderboard", leaderboardRoutes);
 app.use('/api/profile', profileRoutes);
 app.use("/api/student/feedback", studentFeedbackRoutes);
+app.use("/api/progress", progressRoutes);
 app.use("/api/stats", statsRoutes);
 //app.use("/api/admin/programs", adminProgramRoutes);
 //app.use("/api/admin", adminFeedbackRoutes);
@@ -83,6 +85,7 @@ app.use(
   express.static(path.join(process.cwd(), 'uploads'))
 );
 app.use("/api/v1", routes);
+
 
 // Health check
 app.get('/api/health', (req, res) => {
