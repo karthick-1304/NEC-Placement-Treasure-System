@@ -15,9 +15,11 @@ import profileRoutes from '../src/routes/user/profileRoutes.js';
 import studentFeedbackRoutes from "./routes/user/studentFeedbackRoutes.js";
 import adminFeedbackRoutes from "./routes/admin/adminFeedbackRoutes.js";
 import adminProgramRoutes from "./routes/admin/adminProgramRoutes.js";
+import streakRoutes from "./routes/user/streakRoutes.js";
 import adminRoutes from "./routes/admin/adminRoutes.js";
 import solvedRoutes from "./routes/user/solvedRoutes.js";
 import statsRoutes from "./routes/user/statsRoutes.js";
+import heatmapRoutes from "./routes/user/heatmapRoutes.js";
 import routes from "./routes/index.js";
 import path from 'path';
 
@@ -64,6 +66,8 @@ if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use("/api/stats/streak", streakRoutes);
+app.use("/api/stats/heatmap", heatmapRoutes);
 app.use('/api/companies', companyRoutes);
 app.use('/api/programs', programRoutes);
 app.use("/api/leaderboard", leaderboardRoutes);
