@@ -7,27 +7,35 @@ export default function Leaderboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const PAGE_SIZE = 10; // same as API limit
+  const PAGE_SIZE = 10;
 
   const fetchLeaderboard = async (pageNo = 1) => {
     try {
       setLoading(true);
+      setError("");
+
       const res = await fetch(
         `http://localhost:5000/api/leaderboard?page=${pageNo}&limit=${PAGE_SIZE}`,
         { credentials: "include" }
       );
+
+      if (!res.ok) {
+        throw new Error("Network response was not ok");
+      }
+
       const data = await res.json();
 
-      if (data.status !== "success") throw new Error("Failed to load leaderboard");
+      if (data.status !== "success") {
+        throw new Error("Failed to load leaderboard");
+      }
 
-      // Only users with at least 1 solved problem
-      const filteredData = data.data.filter((s) => s.programs_solved >= 1);
+      // Backend already filters students
+      setStudents(data.data || []);
+      setTotalPages(data.totalPages || 1);
+      setPage(data.page || 1);
 
-      setStudents(filteredData);
-      setTotalPages(data.totalPages);
-      setPage(data.page);
     } catch (err) {
-      setError(err.message);
+      setError(err.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
@@ -42,8 +50,15 @@ export default function Leaderboard() {
       <h1 className="text-2xl font-bold text-white mb-6">Leaderboard</h1>
 
       <div className="glass border border-dark-700 rounded-2xl overflow-hidden">
-        {loading && <p className="text-center text-dark-400 py-6">Loading leaderboard...</p>}
-        {error && <p className="text-center text-rose-400 py-6">{error}</p>}
+        {loading && (
+          <p className="text-center text-dark-400 py-6">
+            Loading leaderboard...
+          </p>
+        )}
+
+        {error && (
+          <p className="text-center text-rose-400 py-6">{error}</p>
+        )}
 
         {!loading && !error && (
           <table className="w-full text-sm">
@@ -55,6 +70,7 @@ export default function Leaderboard() {
                 <th className="px-4 py-3 text-left">Solved</th>
               </tr>
             </thead>
+
             <tbody>
               {students.map((s, i) => {
                 const absoluteRank = (page - 1) * PAGE_SIZE + (i + 1);
@@ -63,7 +79,8 @@ export default function Leaderboard() {
                 let rowHeight = "py-2";
                 let borderLeft = "";
 
-                let rankDisplay;
+                let rankDisplay = absoluteRank;
+
                 if (page === 1) {
                   if (i === 0) {
                     rankDisplay = "🥇";
@@ -80,11 +97,7 @@ export default function Leaderboard() {
                     bg = "bg-orange-400/20";
                     rowHeight = "py-3";
                     borderLeft = "border-l-4 border-orange-400";
-                  } else {
-                    rankDisplay = absoluteRank;
                   }
-                } else {
-                  rankDisplay = absoluteRank;
                 }
 
                 return (
@@ -95,18 +108,29 @@ export default function Leaderboard() {
                     <td className={`px-4 ${rowHeight} text-primary-400 font-semibold`}>
                       {rankDisplay}
                     </td>
+
                     <td className={`px-4 ${rowHeight} text-white font-semibold`}>
                       {s.full_name}
                     </td>
+
                     <td className={`px-4 ${rowHeight} text-amber-400 font-semibold`}>
                       {s.total_score}
                     </td>
+
                     <td className={`px-4 ${rowHeight} text-emerald-400 font-semibold`}>
                       {s.programs_solved}
                     </td>
                   </tr>
                 );
               })}
+
+              {students.length === 0 && (
+                <tr>
+                  <td colSpan="4" className="text-center text-dark-400 py-6">
+                    No leaderboard data available
+                  </td>
+                </tr>
+              )}
             </tbody>
           </table>
         )}
@@ -121,9 +145,11 @@ export default function Leaderboard() {
         >
           Prev
         </button>
+
         <span className="text-dark-400 text-sm">
           Page {page} of {totalPages}
         </span>
+
         <button
           onClick={() => setPage((p) => Math.min(p + 1, totalPages))}
           disabled={page === totalPages}

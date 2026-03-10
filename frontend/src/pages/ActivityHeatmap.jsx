@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import axiosInstance from "../api/axiosInstance";
+import CalendarHeatmap from "react-calendar-heatmap";
+import "react-calendar-heatmap/dist/styles.css";
 
 export default function ActivityHeatmap() {
 
@@ -9,24 +11,23 @@ export default function ActivityHeatmap() {
 
     const fetchHeatmap = async () => {
 
+      const end = new Date();
+      const start = new Date();
+      start.setDate(end.getDate() - 90);
+
+      const startDate = start.toISOString().split("T")[0];
+      const endDate = end.toISOString().split("T")[0];
+
       try {
-
-        const end = new Date();
-        const start = new Date();
-
-        start.setDate(end.getDate() - 90);
-
-        const startDate = start.toISOString().split("T")[0];
-        const endDate = end.toISOString().split("T")[0];
 
         const res = await axiosInstance.get(
           `/stats/heatmap?start=${startDate}&end=${endDate}`
         );
 
-        setData(res.data.data);
+        setData(res.data.data || []);
 
       } catch (err) {
-        console.error("Heatmap error:", err.response?.data || err);
+        console.error(err);
       }
 
     };
@@ -35,26 +36,44 @@ export default function ActivityHeatmap() {
 
   }, []);
 
-  return (
-    <div className="grid grid-cols-12 gap-1">
-      {data.map((day, index) => (
-        <div
-          key={index}
-          title={`${day.date} - ${day.count} solves`}
-          className="w-4 h-4 rounded-sm"
-          style={{
-            backgroundColor:
-              day.count === 0
-                ? "#1f2937"
-                : day.count < 2
-                ? "#4ade80"
-                : day.count < 4
-                ? "#22c55e"
-                : "#166534"
-          }}
-        />
-      ))}
-    </div>
-  );
+  const endDate = new Date();
+  const startDate = new Date();
+  startDate.setDate(endDate.getDate() - 90);
 
+  return (
+
+    <div className="bg-gray-800 p-4 rounded-xl">
+
+      <h2 className="text-white mb-4 font-semibold">
+        Coding Activity
+      </h2>
+
+      <CalendarHeatmap
+        startDate={startDate}
+        endDate={endDate}
+        values={data}
+
+        classForValue={(value) => {
+
+          if (!value) return "color-empty";
+          if (value.count === 0) return "color-empty";
+          if (value.count < 2) return "color-scale-1";
+          if (value.count < 4) return "color-scale-2";
+          return "color-scale-3";
+
+        }}
+      />
+
+      <style>
+        {`
+          .color-empty { fill: #2d333b; }
+          .color-scale-1 { fill: #0e4429; }
+          .color-scale-2 { fill: #006d32; }
+          .color-scale-3 { fill: #26a641; }
+        `}
+      </style>
+
+    </div>
+
+  );
 }
