@@ -5,6 +5,7 @@ import axiosInstance from "../api/axiosInstance";
 import TrendToggle from "../components/progress/TrendToggle";
 import TrendChart from "../components/progress/TrendChart";
 import ConsistencyCard from "../components/progress/ConsistencyCard";
+import WeeklyGoalCard from "../components/progress/WeeklyGoalCard";
 import Milestones from "../components/progress/Milestones";
 
 export default function ProgressExplorer() {
@@ -77,6 +78,10 @@ export default function ProgressExplorer() {
       {/* Consistency Score */}
       <div className="mt-10">
         <ConsistencyCard score={analytics?.consistency_score || 0} />
+      </div>
+      
+      <div className="mt-10">
+      <WeeklyGoalCard />
       </div>
 
       {/* Milestones */}

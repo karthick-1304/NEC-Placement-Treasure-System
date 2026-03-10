@@ -22,6 +22,7 @@ import statsRoutes from "./routes/user/statsRoutes.js";
 import heatmapRoutes from "./routes/user/heatmapRoutes.js";
 import routes from "./routes/index.js";
 import progressRoutes from "./routes/user/progressRoutes.js";
+import weeklyGoalRoutes from "./routes/user/weeklyGoalRoutes.js";
 import path from 'path';
 
 
@@ -75,6 +76,7 @@ app.use("/api/leaderboard", leaderboardRoutes);
 app.use('/api/profile', profileRoutes);
 app.use("/api/student/feedback", studentFeedbackRoutes);
 app.use("/api/progress", progressRoutes);
+app.use("/api/progress", weeklyGoalRoutes);
 app.use("/api/stats", statsRoutes);
 //app.use("/api/admin/programs", adminProgramRoutes);
 //app.use("/api/admin", adminFeedbackRoutes);
