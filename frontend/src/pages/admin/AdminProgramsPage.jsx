@@ -16,9 +16,22 @@ function AdminProgramsPage() {
 
   const [form, setForm] = useState({
     title: "",
+    description: "",
     difficulty: "",
+    constraints_text: "",
+    time_limit_ms: 2000,
+    memory_limit_mb: 256,
+    supported_languages: [],
+    public_testcase_count: 0,
+    private_testcase_count: 0,
   });
-
+  const [testcases, setTestcases] = useState([
+    {
+      input: "",
+      output: "",
+      isPrivate: false,
+    },
+  ]);
   const loadPrograms = async () => {
     try {
       setLoading(true);
@@ -41,12 +54,60 @@ function AdminProgramsPage() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+  
     try {
-      await createProgram(form);
-setForm({ title: "", difficulty: "" });
-setPage(1);
+  
+      const publicCount = testcases.filter(tc => !tc.isPrivate).length;
+      const privateCount = testcases.filter(tc => tc.isPrivate).length;
+  
+      const payload = {
+        ...form,
+        public_testcase_count: publicCount,
+        private_testcase_count: privateCount,
+      
+        publicTestcases: testcases
+          .filter(tc => !tc.isPrivate)
+          .map(tc => ({
+            input: tc.input,
+            output: tc.output
+          })),
+      
+        privateTestcases: testcases
+          .filter(tc => tc.isPrivate)
+          .map(tc => ({
+            input: tc.input,
+            output: tc.output
+          }))
+      };
+
+      console.log("PAYLOAD:", payload);
+      await createProgram(payload);
+  
+      setForm({
+        title: "",
+        description: "",
+        difficulty: "",
+        constraints_text: "",
+        time_limit_ms: 2000,
+        memory_limit_mb: 256,
+        supported_languages: [],
+        public_testcase_count: 0,
+        private_testcase_count: 0,
+      });
+  
+      setTestcases([
+        {
+          input: "",
+          output: "",
+          isPrivate: false,
+        },
+      ]);
+  
+      setPage(1);
+      loadPrograms();
+  
     } catch (err) {
-      console.error("Create program error", err);
+      console.error("Create program error", err.response?.data || err);
     }
   };
 
@@ -64,7 +125,21 @@ setPage(1);
       console.error("Delete program error", err);
     }
   };
-
+  const addTestcase = () => {
+    setTestcases([
+      ...testcases,
+      {
+        input: "",
+        output: "",
+        isPrivate: false,
+      },
+    ]);
+  };
+  const removeTestcase = (index) => {
+    const updated = [...testcases];
+    updated.splice(index, 1);
+    setTestcases(updated);
+  };
   const getDifficultyStyle = (difficulty) => {
     switch (difficulty) {
       case "easy":
@@ -121,12 +196,152 @@ setPage(1);
   <option value="hard">Hard</option>
 </select>
 
-          <button
-            type="submit"
-            className="bg-primary-600 hover:bg-primary-500 rounded-lg px-4 py-2 font-medium transition"
-          >
-            Create Program
-          </button>
+<textarea
+  rows="4"
+  className="bg-dark-900 border border-dark-600 rounded-lg px-3 py-2 md:col-span-3"
+  placeholder="Description"
+  value={form.description}
+  onChange={(e) => setForm({ ...form, description: e.target.value })}
+/>
+
+<input
+  className="bg-dark-900 border border-dark-600 rounded-lg px-3 py-2"
+  placeholder="Constraints"
+  value={form.constraints_text}
+  onChange={(e) =>
+    setForm({ ...form, constraints_text: e.target.value })
+  }
+/>
+
+<input
+  type="number"
+  className="bg-dark-900 border border-dark-600 rounded-lg px-3 py-2"
+  placeholder="Time Limit (ms)"
+  value={form.time_limit_ms}
+  onChange={(e) =>
+    setForm({ ...form, time_limit_ms: Number(e.target.value) })
+  }
+/>
+
+<input
+  type="number"
+  className="bg-dark-900 border border-dark-600 rounded-lg px-3 py-2"
+  placeholder="Memory Limit (MB)"
+  value={form.memory_limit_mb}
+  onChange={(e) =>
+    setForm({ ...form, memory_limit_mb: Number(e.target.value) })
+  }
+/>
+
+<div className="md:col-span-3">
+  <p className="text-sm mb-2">Supported Languages</p>
+
+  <div className="flex gap-4 flex-wrap">
+
+    {["c", "cpp", "java", "python"].map((lang) => (
+      <label key={lang} className="flex items-center gap-2">
+        <input
+          type="checkbox"
+          checked={form.supported_languages.includes(lang)}
+          onChange={(e) => {
+            if (e.target.checked) {
+              setForm({
+                ...form,
+                supported_languages: [...form.supported_languages, lang],
+              });
+            } else {
+              setForm({
+                ...form,
+                supported_languages: form.supported_languages.filter(
+                  (l) => l !== lang
+                ),
+              });
+            }
+          }}
+        />
+        {lang.toUpperCase()}
+      </label>
+    ))}
+
+  </div>
+</div>
+
+<div className="md:col-span-3 mt-4">
+  <h4 className="text-md font-medium mb-3">Testcases</h4>
+
+  {testcases.map((tc, index) => (
+    <div
+      key={index}
+      className="border border-dark-700 rounded-lg p-4 mb-4 bg-dark-900"
+    >
+      <div className="flex justify-between items-center mb-2">
+  <p className="text-sm">Example No: {index + 1}</p>
+
+  {testcases.length > 1 && (
+    <button
+      type="button"
+      onClick={() => removeTestcase(index)}
+      className="text-rose-400 hover:text-rose-300 text-sm"
+    >
+      Remove
+    </button>
+  )}
+</div>
+
+      <textarea
+  rows="3"
+  className="w-full mb-2 bg-dark-800 border border-dark-600 rounded px-3 py-2"
+  placeholder="Input"
+  value={tc.input}
+  onChange={(e) => {
+    const updated = [...testcases];
+    updated[index].input = e.target.value;
+    setTestcases(updated);
+  }}
+/>
+
+<textarea
+  rows="2"
+  className="w-full mb-2 bg-dark-800 border border-dark-600 rounded px-3 py-2"
+  placeholder="Output"
+  value={tc.output}
+  onChange={(e) => {
+    const updated = [...testcases];
+    updated[index].output = e.target.value;
+    setTestcases(updated);
+  }}
+/>
+
+
+      <label className="flex items-center gap-2 text-sm">
+        <input
+          type="checkbox"
+          checked={tc.isPrivate}
+          onChange={(e) => {
+            const updated = [...testcases];
+            updated[index].isPrivate = e.target.checked;
+            setTestcases(updated);
+          }}
+        />
+        Private Testcase
+      </label>
+    </div>
+  ))}
+
+  <button
+    type="button"
+    onClick={addTestcase}
+    className="mt-2 bg-dark-700 hover:bg-dark-600 px-4 py-2 rounded"
+  >
+    Add Testcase
+  </button>
+</div>
+<button
+  type="submit"
+  className="md:col-span-3 bg-primary-600 hover:bg-primary-500 rounded-lg px-4 py-2 font-medium transition"
+>
+  Create Program
+</button>
         </form>
       </div>
 

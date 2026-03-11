@@ -12,14 +12,21 @@ import {
 /**
  * ➕ Create Program (Admin)
  */
-export const createProgram = catchAsync(async (req, res) => {
-  const result = await createProgramService(req.body, req.user.user_id);
+export const createProgram = async (req, res) => {
+  try {
+    const result = await createProgramService(
+      req.body,
+      req.user.user_id   // logged-in admin
+    );
 
-  res.status(201).json({
-    status: "success",
-    data: result
-  });
-});
+    res.status(201).json(result);
+
+  } catch (err) {
+    res.status(400).json({
+      message: err.message
+    });
+  }
+};
 
 /**
  * 📄 Get All Programs (Admin)

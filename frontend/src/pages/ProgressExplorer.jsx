@@ -1,60 +1,94 @@
-import React from "react";
-import { useNavigate } from "react-router-dom";
-import useAuth from "../hooks/useAuth.js";
+import React, { useEffect, useState } from "react";
+
+import axiosInstance from "../api/axiosInstance";
+
+import TrendToggle from "../components/progress/TrendToggle";
+import TrendChart from "../components/progress/TrendChart";
+import ConsistencyCard from "../components/progress/ConsistencyCard";
+import WeeklyGoalCard from "../components/progress/WeeklyGoalCard";
+import Milestones from "../components/progress/Milestones";
 
 export default function ProgressExplorer() {
-  const navigate = useNavigate();
-  const { medals } = useAuth();
 
-  const totalPrograms = medals?.total_programs ?? 0;
-  const programsSolved = medals?.programs_solved ?? 0;
+  const [analytics, setAnalytics] = useState(null);
+  const [view, setView] = useState("weekly");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  // Global Rank only if at least 1 problem solved
-  const globalRank = programsSolved < 1 ? "-" : medals?.global_rank ?? "-";
+  const fetchAnalytics = async () => {
+    try {
+
+      const res = await axiosInstance.get("/progress/explorer");
+
+      console.log("FULL API RESPONSE:", res.data);
+
+      setAnalytics(res.data?.data || {});
+      setLoading(false);
+
+    } catch (err) {
+
+      console.error("Analytics fetch error:", err);
+      setError(err?.message || "Failed to load analytics");
+      setLoading(false);
+
+    }
+  };
+
+  useEffect(() => {
+    fetchAnalytics();
+  }, []);
+
+  if (loading) {
+    return (
+      <p className="text-white text-center mt-10">
+        Loading progress analytics...
+      </p>
+    );
+  }
+
+  if (error) {
+    return (
+      <p className="text-red-400 text-center mt-10">
+        {error}
+      </p>
+    );
+  }
+
+  const chartData =
+    view === "weekly"
+      ? analytics?.weekly_trend || []
+      : analytics?.monthly_trend || [];
 
   return (
-    <div className="max-w-screen-md mx-auto px-4 py-10 text-white">
+    <div className="max-w-screen-lg mx-auto px-4 py-10 text-white">
 
-      {/* Header */}
-      <div className="mb-12">
-        <h1 className="text-5xl font-bold text-center mb-2">Progress Explorer</h1>
-        <p className="text-center text-gray-400 text-sm">
-          Track your coding journey and stats
-        </p>
+      {/* Page Title */}
+      <h1 className="text-4xl font-bold mb-8 text-center">
+        Progress Explorer
+      </h1>
+
+      {/* Toggle Weekly / Monthly */}
+      <TrendToggle view={view} setView={setView} />
+
+      {/* Chart */}
+      <div className="mt-8">
+        <TrendChart data={chartData} view={view} />
       </div>
 
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-        <StatCard label="Total Programs" value={totalPrograms} />
-        <StatCard label="Programs Solved" value={programsSolved} />
-        <StatCard label="Global Rank" value={globalRank} />
+      {/* Consistency Score */}
+      <div className="mt-10">
+        <ConsistencyCard score={analytics?.consistency_score || 0} />
+      </div>
+      
+      <div className="mt-10">
+      <WeeklyGoalCard />
       </div>
 
-      {/* Empty State */}
-      {programsSolved === 0 && (
-        <div className="bg-gradient-to-br from-[#0b1426] to-[#1a2a4a] p-10 rounded-xl text-center shadow-lg">
-          <p className="text-xl text-gray-300 mb-4">
-            You haven’t solved any programs yet!
-          </p>
-          <button
-            onClick={() => navigate("/programs")}
-            className="px-6 py-3 rounded-lg bg-[#16224c] hover:bg-[#1c2e65] transition font-semibold"
-          >
-            Explore Programs
-          </button>
-        </div>
-      )}
+      {/* Milestones */}
+      <div className="mt-10">
+        <Milestones milestones={analytics?.milestones || {}} />
+      </div>
 
-    </div>
-  );
-}
-
-// Stat Card
-function StatCard({ label, value }) {
-  return (
-    <div className="bg-[#0d1b36] p-6 rounded-lg shadow flex flex-col items-center">
-      <p className="text-gray-400 text-sm">{label}</p>
-      <p className="text-2xl font-bold mt-2">{value ?? "-"}</p>
     </div>
   );
 }

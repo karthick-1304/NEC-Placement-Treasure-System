@@ -7,7 +7,7 @@ import Spinner from './Spinner.jsx';
 
 const NAV_LINKS = [
   { label: 'Home',             to: '/',           roles: ['student','staff','dept_head','admin'] },
-  { label: 'Leaderboard',      to: '/leaderboard',roles: ['student','staff','dept_head','admin'] }, // ✅ NEW
+  { label: 'Leaderboard',      to: '/leaderboard',roles: ['student','staff','dept_head','admin'] }, 
   { label: 'Progress Explorer',to: '/progress',   roles: ['student','staff','dept_head','admin'] },
 ];
 

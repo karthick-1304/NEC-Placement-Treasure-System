@@ -15,8 +15,14 @@ import profileRoutes from '../src/routes/user/profileRoutes.js';
 import studentFeedbackRoutes from "./routes/user/studentFeedbackRoutes.js";
 import adminFeedbackRoutes from "./routes/admin/adminFeedbackRoutes.js";
 import adminProgramRoutes from "./routes/admin/adminProgramRoutes.js";
+import streakRoutes from "./routes/user/streakRoutes.js";
 import adminRoutes from "./routes/admin/adminRoutes.js";
+import solvedRoutes from "./routes/user/solvedRoutes.js";
+import statsRoutes from "./routes/user/statsRoutes.js";
+import heatmapRoutes from "./routes/user/heatmapRoutes.js";
 import routes from "./routes/index.js";
+import progressRoutes from "./routes/user/progressRoutes.js";
+import weeklyGoalRoutes from "./routes/user/weeklyGoalRoutes.js";
 import path from 'path';
 
 
@@ -62,19 +68,26 @@ if (process.env.NODE_ENV === 'development') app.use(morgan('dev'));
 
 // Routes
 app.use('/api/auth', authRoutes);
+app.use("/api/stats/streak", streakRoutes);
+app.use("/api/stats/heatmap", heatmapRoutes);
 app.use('/api/companies', companyRoutes);
 app.use('/api/programs', programRoutes);
 app.use("/api/leaderboard", leaderboardRoutes);
 app.use('/api/profile', profileRoutes);
 app.use("/api/student/feedback", studentFeedbackRoutes);
+app.use("/api/progress", progressRoutes);
+app.use("/api/progress", weeklyGoalRoutes);
+app.use("/api/stats", statsRoutes);
 //app.use("/api/admin/programs", adminProgramRoutes);
 //app.use("/api/admin", adminFeedbackRoutes);
+app.use("/api/solved", solvedRoutes);
 app.use("/api/admin", adminRoutes);
 app.use(
   '/uploads',
   express.static(path.join(process.cwd(), 'uploads'))
 );
 app.use("/api/v1", routes);
+
 
 // Health check
 app.get('/api/health', (req, res) => {

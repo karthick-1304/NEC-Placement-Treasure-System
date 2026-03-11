@@ -174,3 +174,42 @@ export const countProgramsQuery = async (difficulty) => {
   const [rows] = await pool.execute(sql, values);
   return rows[0].total;
 };
+/**
+ * ➕ Insert Public Testcase
+ */
+export const insertPublicTestcaseQuery = async (
+  programId,
+  input,
+  output,
+  order
+) => {
+  console.log("INSERTING PUBLIC TESTCASE:", programId, input, output);
+  const query = `
+    INSERT INTO public_test_cases
+    (prog_id, input_data, expected_output, display_order)
+    VALUES (?, ?, ?, ?)
+  `;
+
+  await pool.execute(query, [programId, input, output, order]);
+
+};
+
+/**
+ * ➕ Insert Private Testcase
+ */
+export const insertPrivateTestcaseQuery = async (
+  programId,
+  input,
+  output,
+  order
+) => {
+  console.log("INSERTING PRIVATE TESTCASE:", programId, input, output);
+  const query = `
+    INSERT INTO private_test_cases
+    (prog_id, input_data, expected_output, display_order)
+    VALUES (?, ?, ?, ?)
+  `;
+
+  await pool.execute(query, [programId, input, output, order]);
+
+};

@@ -7,21 +7,36 @@
 // src/queries/profileQueries.js
 
 export const GET_PRIVATE_PROFILE = `
-  SELECT 
-      u.user_id,
-      u.full_name,
-      u.email,
-      u.role,
-      sp.reg_no,
-      sp.batch_year,
-      sp.total_score,
-      sp.programs_solved,
-      sp.global_rank,
-      sp.created_at
-  FROM users u
-  INNER JOIN student_profiles sp 
-      ON u.user_id = sp.user_id
-  WHERE u.user_id = ?
+SELECT
+  u.user_id,
+  u.full_name,
+  u.email,
+
+  sp.reg_no,
+  sp.batch_year,
+  sp.global_rank,
+  sp.total_score,
+
+  COUNT(DISTINCT sprog.prog_id) AS programs_solved
+
+FROM users u
+
+JOIN student_profiles sp
+ON u.user_id = sp.user_id
+
+LEFT JOIN solved_programs sprog
+ON u.user_id = sprog.student_user_id
+
+WHERE u.user_id = ?
+
+GROUP BY
+  u.user_id,
+  u.full_name,
+  u.email,
+  sp.reg_no,
+  sp.batch_year,
+  sp.global_rank,
+  sp.total_score
 `;
 
 
@@ -30,17 +45,34 @@ export const GET_PRIVATE_PROFILE = `
    Does NOT expose email
 ===================================================== */
 export const GET_PUBLIC_PROFILE = `
-  SELECT 
-      u.user_id,
-      u.full_name,
-      sp.batch_year,
-      sp.total_score,
-      sp.programs_solved,
-      sp.global_rank
-  FROM users u
-  INNER JOIN student_profiles sp 
-      ON u.user_id = sp.user_id
-  WHERE u.user_id = ?
+SELECT
+  u.user_id,
+  u.full_name,
+
+  sp.reg_no,
+  sp.batch_year,
+  sp.global_rank,
+  sp.total_score,
+
+  COUNT(DISTINCT sprog.prog_id) AS programs_solved
+
+FROM users u
+
+JOIN student_profiles sp
+ON u.user_id = sp.user_id
+
+LEFT JOIN solved_programs sprog
+ON u.user_id = sprog.student_user_id
+
+WHERE u.user_id = ?
+
+GROUP BY
+  u.user_id,
+  u.full_name,
+  sp.reg_no,
+  sp.batch_year,
+  sp.global_rank,
+  sp.total_score
 `;
 
 
