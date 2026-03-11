@@ -1,11 +1,12 @@
 import { useState } from "react";
 import { useSearchParams } from "react-router-dom";
-import { uploadFeedback } from "../../api/feedbackAPI";
+import { adminUploadFeedback } from "../../api/feedbackAPI";
 
 function UploadFeedback() {
   const [file, setFile] = useState(null);
+  const [studentId, setStudentId] = useState(""); // <-- new state for student ID
   const [message, setMessage] = useState("");
-  const [status, setStatus] = useState("not_selected"); // <-- new state for selection status
+  const [status, setStatus] = useState("not_selected");
 
   const [params] = useSearchParams();
   const driveId = params.get("driveId");
@@ -13,8 +14,9 @@ function UploadFeedback() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (!file) {
-      setMessage("Please select a PDF file");
+    // Validate fields
+    if (!file || !studentId) {
+      setMessage("All fields are required");
       return;
     }
 
@@ -26,13 +28,15 @@ function UploadFeedback() {
     const formData = new FormData();
     formData.append("feedback_pdf", file);
     formData.append("drive_id", String(driveId));
-    formData.append("is_selected", status === "selected" ? "1" : "0"); // <-- same logic as admin
+    formData.append("student_user_id", studentId); // <-- add student ID
+    formData.append("is_selected", status === "selected" ? "1" : "0");
 
     try {
-      await uploadFeedback(formData);
+      await adminUploadFeedback(formData);
       setMessage("Feedback uploaded successfully");
       setFile(null);
-      setStatus("not_selected"); // reset to default
+      setStudentId(""); // reset student ID
+      setStatus("not_selected"); // reset selection status
     } catch (err) {
       console.error(err.response?.data || err);
       setMessage("Upload failed");
@@ -51,6 +55,33 @@ function UploadFeedback() {
         </p>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
+          {/* Student ID */}
+          <div>
+            <label className="block text-sm text-dark-300 mb-2">
+              Student User ID
+            </label>
+            <input
+              type="text"
+              placeholder="Enter Student User ID"
+              value={studentId}
+              onChange={(e) => setStudentId(e.target.value)}
+              className="
+                w-full
+                px-3
+                py-2
+                rounded-lg
+                bg-dark-700
+                border
+                border-dark-600
+                text-white
+                placeholder-dark-400
+                focus:outline-none
+                focus:ring-2
+                focus:ring-primary-500
+              "
+            />
+          </div>
+
           {/* File Input */}
           <div>
             <label className="block text-sm text-dark-300 mb-2">

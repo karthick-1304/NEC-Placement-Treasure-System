@@ -51,26 +51,31 @@ function AdminStudentsPage() {
   };
 
   setTimeout(() => setSuccessMsg(""), 2000);
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      await createStudent(form);
-      setSuccessMsg("Student added successfully!");
-      setForm({
-        full_name: "",
-        email: "",
-        password: "",
-        reg_no: "",
-        dept_id: "",
-        batch_year: ""
-      });
-      refreshStudents();
-    } catch (err) {
-      console.error("Create student error:", err);
-console.error("Backend response:", err.response);
-console.error("Backend data:", err.response?.data);
-    }
-  };
+ const [submitting, setSubmitting] = useState(false);
+
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setSubmitting(true);
+  try {
+    await createStudent(form);
+    setSuccessMsg("Student added successfully!");
+    setForm({
+      full_name: "",
+      email: "",
+      password: "",
+      reg_no: "",
+      dept_id: "",
+      batch_year: ""
+    });
+    refreshStudents();
+    setTimeout(() => setSuccessMsg(""), 2000);
+  } catch (err) {
+    console.error("Create student error:", err);
+    console.error("Backend response:", err.response?.data);
+  } finally {
+    setSubmitting(false);
+  }
+};
 
   const handleDelete = async (id) => {
     try {
@@ -170,9 +175,10 @@ console.error("Backend data:", err.response?.data);
   />
 
 <button
+  disabled={submitting}
   className="md:col-span-3 bg-primary-600 hover:bg-primary-500 rounded-lg px-4 py-2 font-medium transition"
 >
-  Create Student
+  {submitting ? "Creating..." : "Create Student"}
 </button>
 
 {successMsg && (

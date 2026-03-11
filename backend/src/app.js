@@ -78,8 +78,8 @@ app.use("/api/student/feedback", studentFeedbackRoutes);
 app.use("/api/progress", progressRoutes);
 app.use("/api/progress", weeklyGoalRoutes);
 app.use("/api/stats", statsRoutes);
-//app.use("/api/admin/programs", adminProgramRoutes);
-//app.use("/api/admin", adminFeedbackRoutes);
+app.use("/api/admin/programs", adminProgramRoutes);
+app.use("/api/admin", adminFeedbackRoutes);
 app.use("/api/solved", solvedRoutes);
 app.use("/api/admin", adminRoutes);
 app.use(
