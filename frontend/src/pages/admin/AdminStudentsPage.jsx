@@ -12,6 +12,7 @@ function AdminStudentsPage() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [totalPages, setTotalPages] = useState(1);
 
   const [form, setForm] = useState({
     full_name: "",
@@ -39,7 +40,8 @@ function AdminStudentsPage() {
         const res = await getAllStudents(page);
         const data = res?.data || [];
         setStudents(data);
-        setHasMore(data.length === 10); // if less than 10 → last page
+        setHasMore(data.length === 10);
+setTotalPages(page + (data.length === 10 ? 1 : 0)); // if less than 10 → last page
       } catch (err) {
         console.error("Error loading students", err);
       } finally {
@@ -294,34 +296,49 @@ if (Object.keys(newErrors).length > 0) {
             No students found
           </p>
         )}
-        <div className="flex justify-center gap-4 py-6">
-        <button
-  disabled={page === 1}
-  onClick={() => setPage((p) => Math.max(p - 1, 1))}
-  className={`px-4 py-2 rounded-lg ${
-    page === 1
-      ? "bg-dark-800 text-dark-500 cursor-not-allowed"
-      : "bg-dark-700 hover:bg-dark-600"
-  }`}
+        <div className="flex justify-center items-center gap-2 py-6">
+
+<button
+disabled={page === 1}
+onClick={() => setPage((p) => Math.max(p - 1, 1))}
+className={`px-3 py-1 rounded ${
+page === 1
+? "bg-dark-800 text-dark-500 cursor-not-allowed"
+: "bg-dark-700 hover:bg-dark-600"
+}`}
 >
-  Prev
+Prev
 </button>
 
-  <span className="px-4 py-2 text-dark-300">
-    Page {page}
-  </span>
-
-  <button
-  disabled={!hasMore}
-  onClick={() => setPage((p) => p + 1)}
-  className={`px-4 py-2 rounded-lg ${
-    hasMore
-      ? "bg-dark-700 hover:bg-dark-600"
-      : "bg-dark-800 text-dark-500 cursor-not-allowed"
-  }`}
+{[...Array(totalPages)].map((_, i) => {
+const pageNum = i + 1;
+return (
+<button
+key={pageNum}
+onClick={() => setPage(pageNum)}
+className={`px-3 py-1 rounded ${
+page === pageNum
+? "bg-primary-600"
+: "bg-dark-700 hover:bg-dark-600"
+}`}
 >
-  Next
+{pageNum}
 </button>
+);
+})}
+
+<button
+disabled={!hasMore}
+onClick={() => setPage((p) => p + 1)}
+className={`px-3 py-1 rounded ${
+hasMore
+? "bg-dark-700 hover:bg-dark-600"
+: "bg-dark-800 text-dark-500 cursor-not-allowed"
+}`}
+>
+Next
+</button>
+
 </div>
       </div>
     </div>
