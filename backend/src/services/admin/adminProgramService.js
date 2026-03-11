@@ -6,8 +6,9 @@ import {
   getProgramByIdQuery,
   updateProgramQuery,
   deleteProgramQuery,
-  countProgramsQuery
-
+  countProgramsQuery,
+  insertPublicTestcaseQuery,
+  insertPrivateTestcaseQuery
 } from "../../queries/admin/adminProgramQueries.js";
 
 /**
@@ -23,9 +24,12 @@ export const createProgramService = async (data, adminId) => {
     memory_limit_mb,
     supported_languages,
     public_testcase_count,
-    private_testcase_count
+    private_testcase_count,
+    publicTestcases = [],
+    privateTestcases = []
   } = data;
 
+  // 1️⃣ Insert program
   const result = await createProgramQuery(
     title,
     description,
@@ -39,12 +43,37 @@ export const createProgramService = async (data, adminId) => {
     adminId
   );
 
+  const programId = result.insertId;
+  console.log("NEW PROGRAM ID:", programId);
+  // 2️⃣ Insert testcases
+
+  let order = 1;
+
+  // Public testcases
+  for (const tc of publicTestcases) {
+    await insertPublicTestcaseQuery(
+      programId,
+      tc.input,
+      tc.output,
+      order++
+    );
+  }
+  
+  // Private testcases
+  for (const tc of privateTestcases) {
+    await insertPrivateTestcaseQuery(
+      programId,
+      tc.input,
+      tc.output,
+      order++
+    );
+  }
+
   return {
     message: "Program created successfully",
-    programId: result.insertId
+    programId
   };
 };
-
 /**
  * 📄 Get All Programs Service
  */

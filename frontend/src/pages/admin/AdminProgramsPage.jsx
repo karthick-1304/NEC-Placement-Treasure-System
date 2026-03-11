@@ -25,7 +25,13 @@ function AdminProgramsPage() {
     public_testcase_count: 0,
     private_testcase_count: 0,
   });
-
+  const [testcases, setTestcases] = useState([
+    {
+      input: "",
+      output: "",
+      isPrivate: false,
+    },
+  ]);
   const loadPrograms = async () => {
     try {
       setLoading(true);
@@ -50,10 +56,31 @@ function AdminProgramsPage() {
     e.preventDefault();
   
     try {
+  
+      const publicCount = testcases.filter(tc => !tc.isPrivate).length;
+      const privateCount = testcases.filter(tc => tc.isPrivate).length;
+  
       const payload = {
         ...form,
+        public_testcase_count: publicCount,
+        private_testcase_count: privateCount,
+      
+        publicTestcases: testcases
+          .filter(tc => !tc.isPrivate)
+          .map(tc => ({
+            input: tc.input,
+            output: tc.output
+          })),
+      
+        privateTestcases: testcases
+          .filter(tc => tc.isPrivate)
+          .map(tc => ({
+            input: tc.input,
+            output: tc.output
+          }))
       };
-  
+
+      console.log("PAYLOAD:", payload);
       await createProgram(payload);
   
       setForm({
@@ -68,11 +95,19 @@ function AdminProgramsPage() {
         private_testcase_count: 0,
       });
   
+      setTestcases([
+        {
+          input: "",
+          output: "",
+          isPrivate: false,
+        },
+      ]);
+  
       setPage(1);
       loadPrograms();
   
     } catch (err) {
-      console.error("Create program error", err);
+      console.error("Create program error", err.response?.data || err);
     }
   };
 
@@ -90,7 +125,21 @@ function AdminProgramsPage() {
       console.error("Delete program error", err);
     }
   };
-
+  const addTestcase = () => {
+    setTestcases([
+      ...testcases,
+      {
+        input: "",
+        output: "",
+        isPrivate: false,
+      },
+    ]);
+  };
+  const removeTestcase = (index) => {
+    const updated = [...testcases];
+    updated.splice(index, 1);
+    setTestcases(updated);
+  };
   const getDifficultyStyle = (difficulty) => {
     switch (difficulty) {
       case "easy":
@@ -147,7 +196,8 @@ function AdminProgramsPage() {
   <option value="hard">Hard</option>
 </select>
 
-<input
+<textarea
+  rows="4"
   className="bg-dark-900 border border-dark-600 rounded-lg px-3 py-2 md:col-span-3"
   placeholder="Description"
   value={form.description}
@@ -216,25 +266,76 @@ function AdminProgramsPage() {
   </div>
 </div>
 
-<input
-  type="number"
-  className="bg-dark-900 border border-dark-600 rounded-lg px-3 py-2"
-  placeholder="Public Testcases"
-  value={form.public_testcase_count || ""}
-  onChange={(e) =>
-    setForm({ ...form, public_testcase_count: Number(e.target.value) })
-  }
+<div className="md:col-span-3 mt-4">
+  <h4 className="text-md font-medium mb-3">Testcases</h4>
+
+  {testcases.map((tc, index) => (
+    <div
+      key={index}
+      className="border border-dark-700 rounded-lg p-4 mb-4 bg-dark-900"
+    >
+      <div className="flex justify-between items-center mb-2">
+  <p className="text-sm">Example No: {index + 1}</p>
+
+  {testcases.length > 1 && (
+    <button
+      type="button"
+      onClick={() => removeTestcase(index)}
+      className="text-rose-400 hover:text-rose-300 text-sm"
+    >
+      Remove
+    </button>
+  )}
+</div>
+
+      <textarea
+  rows="3"
+  className="w-full mb-2 bg-dark-800 border border-dark-600 rounded px-3 py-2"
+  placeholder="Input"
+  value={tc.input}
+  onChange={(e) => {
+    const updated = [...testcases];
+    updated[index].input = e.target.value;
+    setTestcases(updated);
+  }}
 />
 
-<input
-  type="number"
-  className="bg-dark-900 border border-dark-600 rounded-lg px-3 py-2"
-  placeholder="Private Testcases"
-  value={form.private_testcase_count || ""}
-  onChange={(e) =>
-    setForm({ ...form, private_testcase_count: Number(e.target.value) })
-  }
+<textarea
+  rows="2"
+  className="w-full mb-2 bg-dark-800 border border-dark-600 rounded px-3 py-2"
+  placeholder="Output"
+  value={tc.output}
+  onChange={(e) => {
+    const updated = [...testcases];
+    updated[index].output = e.target.value;
+    setTestcases(updated);
+  }}
 />
+
+
+      <label className="flex items-center gap-2 text-sm">
+        <input
+          type="checkbox"
+          checked={tc.isPrivate}
+          onChange={(e) => {
+            const updated = [...testcases];
+            updated[index].isPrivate = e.target.checked;
+            setTestcases(updated);
+          }}
+        />
+        Private Testcase
+      </label>
+    </div>
+  ))}
+
+  <button
+    type="button"
+    onClick={addTestcase}
+    className="mt-2 bg-dark-700 hover:bg-dark-600 px-4 py-2 rounded"
+  >
+    Add Testcase
+  </button>
+</div>
 <button
   type="submit"
   className="md:col-span-3 bg-primary-600 hover:bg-primary-500 rounded-lg px-4 py-2 font-medium transition"
