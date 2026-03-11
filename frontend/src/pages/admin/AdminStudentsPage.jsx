@@ -22,6 +22,7 @@ function AdminStudentsPage() {
     batch_year: ""
   });
   const [successMsg, setSuccessMsg] = useState("");
+  const [errors, setErrors] = useState({});
   const DEPT_MAP = {
   1: "CSE",
   2: "IT",
@@ -58,14 +59,37 @@ function AdminStudentsPage() {
     }
   };
 
-  setTimeout(() => setSuccessMsg(""), 2000);
  const [submitting, setSubmitting] = useState(false);
 
 const handleSubmit = async (e) => {
   e.preventDefault();
   setSubmitting(true);
+
+  // Frontend validation
+const newErrors = {};
+
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const passwordRegex =
+/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{9,}$/;
+
+if (!emailRegex.test(form.email)) {
+  newErrors.email = "Enter a valid email address";
+}
+
+if (!passwordRegex.test(form.password)) {
+  newErrors.password =
+    "Password must contain uppercase, lowercase, number, special character and be at least 9 characters";
+}
+
+if (Object.keys(newErrors).length > 0) {
+  setErrors(newErrors);
+  setSubmitting(false);
+  return;
+}
   try {
     await createStudent(form);
+    setErrors({});
     setSuccessMsg("Student added successfully!");
     setForm({
       full_name: "",
@@ -78,9 +102,13 @@ const handleSubmit = async (e) => {
     refreshStudents();
     setTimeout(() => setSuccessMsg(""), 2000);
   } catch (err) {
-    console.error("Create student error:", err);
-    console.error("Backend response:", err.response?.data);
-  } finally {
+  console.error("Create student error:", err);
+  if (err.response?.data?.errors) {
+  setErrors(err.response.data.errors);
+} else if (err.response?.data?.message) {
+  setErrors({ password: err.response.data.message });
+}
+}finally {
     setSubmitting(false);
   }
 };
@@ -130,24 +158,58 @@ const handleSubmit = async (e) => {
   />
 
   <input
-    className="bg-dark-900 border border-dark-600 rounded-lg px-3 py-2"
+    className={`bg-dark-900 border rounded-lg px-3 py-2 ${
+  errors.email ? "border-rose-500" : "border-dark-600"
+}`}
     placeholder="Email"
     type="email"
     value={form.email}
-    onChange={(e) =>
-      setForm({ ...form, email: e.target.value })
-    }
+    onChange={(e) => {
+  const value = e.target.value;
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+  setForm({ ...form, email: value });
+
+  if (!emailRegex.test(value)) {
+    setErrors({ ...errors, email: "Enter a valid email address" });
+  } else {
+    setErrors({ ...errors, email: "" });
+  }
+}}
   />
+  {errors.email && (
+  <p className="text-rose-400 text-xs md:col-span-3">{errors.email}</p>
+)}
 
 <input
-  className="bg-dark-900 border border-dark-600 rounded-lg px-3 py-2"
+  className={`bg-dark-900 border rounded-lg px-3 py-2 ${
+  errors.password ? "border-rose-500" : "border-dark-600"
+}`}
   placeholder="Password (Ex: Test@1234)"
   type="password"
   value={form.password}
-  onChange={(e) =>
-    setForm({ ...form, password: e.target.value })
+  onChange={(e) => {
+  const value = e.target.value;
+
+  const passwordRegex =
+    /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&]).{9,}$/;
+
+  setForm({ ...form, password: value });
+
+  if (!passwordRegex.test(value)) {
+    setErrors({
+      ...errors,
+      password:
+        "Password must contain uppercase, lowercase, number, special character and be at least 9 characters"
+    });
+  } else {
+    setErrors({ ...errors, password: "" });
   }
+}}
 />
+{errors.password && (
+  <p className="text-rose-400 text-xs md:col-span-3">{errors.password}</p>
+)}
 
   <input
     className="bg-dark-900 border border-dark-600 rounded-lg px-3 py-2"
@@ -162,8 +224,8 @@ const handleSubmit = async (e) => {
   className="bg-dark-900 border border-dark-600 rounded-lg px-3 py-2"
   value={form.dept_id}
   onChange={(e) =>
-    setForm({ ...form, dept_id: Number(e.target.value) })
-  }
+  setForm({ ...form, dept_id: e.target.value ? Number(e.target.value) : "" })
+}
 >
     <option value="">Select Department</option>
     <option value="1">CSE</option>
@@ -213,7 +275,7 @@ const handleSubmit = async (e) => {
     <div className="text-sm">
       <p className="font-medium">{s.full_name}</p>
       <p className="text-dark-400">
-        {s.email} • {DEPT_MAP[s.dept_id]} • Year {s.batch_year}
+        {s.email} • {DEPT_MAP[s.dept_id]} • {s.batch_year} Batch
       </p>
     </div>
 
