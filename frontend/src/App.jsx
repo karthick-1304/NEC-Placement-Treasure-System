@@ -17,6 +17,7 @@ import UploadFeedbackPage from "./pages/UploadFeedbackPage.jsx";
 import AdminUploadFeedbackPage from "./pages/admin/AdminUploadFeedbackPage.jsx";
 import AdminStudentsPage from "./pages/admin/AdminStudentsPage.jsx";
 import AdminProgramsPage from "./pages/admin/AdminProgramsPage.jsx";
+import SolvedProblemsPage from "./pages/SolvedProblemsPage";
 export default function App() {
   return (
     <BrowserRouter>
@@ -43,6 +44,7 @@ export default function App() {
             <Route path="/leaderboard" element={<Leaderboard />} />
             <Route path="/progress" element={<ProgressExplorer />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/solved" element={<SolvedProblemsPage />} />
 
           </Route>
         </Route>

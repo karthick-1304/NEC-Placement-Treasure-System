@@ -1,13 +1,13 @@
 // src/controllers/profileController.js
 
-import catchAsync from '../../utils/catchAsync.js';
-import AppError from '../../utils/appError.js';
+import catchAsync from "../../utils/catchAsync.js";
+import AppError from "../../utils/appError.js";
 
 import {
   getPrivateProfile,
   getPublicProfile,
   getRecentSolvedPrograms,
-} from '../../services/user/profileService.js';
+} from "../../services/user/profileService.js";
 
 
 /* =====================================================
@@ -15,31 +15,35 @@ import {
    Logged-in student's profile
 ===================================================== */
 export const getMyProfile = catchAsync(async (req, res, next) => {
+
   if (!req.user) {
-    return next(new AppError('Not authenticated.', 401));
+    return next(new AppError("Not authenticated.", 401));
   }
 
-  if (req.user.role !== 'student') {
-    return next(new AppError('Only students have profiles.', 403));
+  if (req.user.role !== "student") {
+    return next(new AppError("Only students have profiles.", 403));
   }
 
   const userId = req.user.user_id;
 
+  // Fetch profile
   const profile = await getPrivateProfile(userId);
 
   if (!profile) {
-    return next(new AppError('Profile not found.', 404));
+    return next(new AppError("Profile not found.", 404));
   }
 
+  // Fetch recent solves
   const recentSolves = await getRecentSolvedPrograms(userId);
 
   res.status(200).json({
-    status: 'success',
+    status: "success",
     data: {
       profile,
-      recent_solves: recentSolves,
+      recent_solves: recentSolves || [],
     },
   });
+
 });
 
 
@@ -48,21 +52,23 @@ export const getMyProfile = catchAsync(async (req, res, next) => {
    Public student profile
 ===================================================== */
 export const getStudentProfile = catchAsync(async (req, res, next) => {
+
   const { userId } = req.params;
 
   const profile = await getPublicProfile(userId);
 
   if (!profile) {
-    return next(new AppError('Student not found.', 404));
+    return next(new AppError("Student not found.", 404));
   }
 
   const recentSolves = await getRecentSolvedPrograms(userId);
 
   res.status(200).json({
-    status: 'success',
+    status: "success",
     data: {
       profile,
-      recent_solves: recentSolves,
+      recent_solves: recentSolves || [],
     },
   });
+
 });
