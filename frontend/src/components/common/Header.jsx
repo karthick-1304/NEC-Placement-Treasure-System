@@ -50,15 +50,15 @@ export default function Header() {
   const filtered = NAV_LINKS.filter((n) => n.roles.includes(role));
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 h-16 glass border-b border-dark-700/50">
-      <div className="max-w-screen-xl mx-auto h-full px-4 flex items-center gap-3">
+    <header className="fixed top-0 left-0 right-0 z-50 h-20 glass border-b border-dark-700/50">
+      <div className="max-w-[1600px] mx-auto h-full px-6 flex items-center gap-5">
 
         {/* ── Logo + App Name ── */}
         <Link to="/" className="flex items-center gap-2.5 shrink-0 group">
-          <div className="relative w-9 h-9 shrink-0">
+          <div className="relative w-11 h-11 shrink-0">
             {/* Outer glow ring */}
             <div className="absolute inset-0 bg-gradient-to-br from-primary-500 to-accent-600 rounded-xl opacity-20 group-hover:opacity-40 blur-sm transition-opacity" />
-            <div className="relative w-9 h-9 bg-gradient-to-br from-primary-600 via-primary-500 to-accent-600 rounded-xl flex items-center justify-center shadow-glow-blue">
+            <div className="relative w-11 h-11 bg-gradient-to-br from-primary-600 via-primary-500 to-accent-600 rounded-xl flex items-center justify-center shadow-glow-blue">
               {/* Treasure chest icon */}
               <svg className="w-5 h-5 text-white" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M5 4a1 1 0 00-1 1v2h16V5a1 1 0 00-1-1H5z" opacity="0.7"/>
@@ -68,7 +68,7 @@ export default function Header() {
             </div>
           </div>
           <div className="hidden sm:flex flex-col leading-none">
-            <span className="text-base font-black text-white tracking-tight">
+            <span className="text-lg font-black text-white tracking-tight">
               NEC{' '}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-400 to-accent-400">
                 Placement
@@ -94,7 +94,7 @@ export default function Header() {
         {/* ── User Identity ── */}
         {user && (
           <div className="hidden md:flex flex-col justify-center min-w-0 shrink-0 max-w-[180px]">
-            <span className="text-sm font-semibold text-white truncate leading-tight">
+            <span className="text-base font-semibold text-white truncate leading-tight">
               {user.full_name}
             </span>
             <div className="flex items-center gap-1.5 mt-0.5">
@@ -117,7 +117,7 @@ export default function Header() {
           <div className="hidden lg:flex items-center gap-2 ml-1">
 
             {/* Score */}
-            <div className="flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/20 rounded-xl px-3 py-1.5 group hover:bg-amber-500/15 transition-colors">
+            <div className="flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/20 rounded-xl px-4 py-2 group hover:bg-amber-500/15 transition-colors">
               <svg className="w-3.5 h-3.5 text-amber-400" viewBox="0 0 24 24" fill="currentColor">
                 <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
               </svg>
@@ -159,7 +159,7 @@ export default function Header() {
             <Link
               key={n.to}
               to={n.to}
-              className={`relative px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200
+              className={`relative px-4 py-2.5 rounded-lg text-base font-medium transition-all duration-200
                 ${location.pathname === n.to
                   ? 'text-white bg-dark-800'
                   : 'text-dark-400 hover:text-white hover:bg-dark-800/60'}`}
@@ -176,7 +176,7 @@ export default function Header() {
         <div className="relative shrink-0" ref={dropdownRef}>
           <button
             onClick={() => setOpen((o) => !o)}
-            className="relative w-9 h-9 rounded-full bg-gradient-to-br from-primary-600 to-accent-600 flex items-center justify-center text-white font-bold text-sm shadow-glow-blue hover:scale-105 transition-transform"
+            className="relative w-11 h-11 rounded-full bg-gradient-to-br from-primary-600 to-accent-600 flex items-center justify-center text-white font-bold text-sm shadow-glow-blue hover:scale-105 transition-transform"
           >
             {user?.full_name?.[0]?.toUpperCase() || 'U'}
             {/* Online dot */}
@@ -184,7 +184,7 @@ export default function Header() {
           </button>
 
           {open && (
-            <div className="absolute right-0 top-12 w-60 glass rounded-2xl border border-dark-700 shadow-2xl animate-slide-down overflow-hidden">
+            <div className="absolute right-0 top-14 w-72 glass rounded-2xl border border-dark-700 shadow-2xl animate-slide-down overflow-hidden">
 
               {/* User info header */}
               <div className="px-4 py-3.5 border-b border-dark-700 bg-dark-800/40">
