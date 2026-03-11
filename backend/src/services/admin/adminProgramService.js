@@ -45,6 +45,10 @@ export const createProgramService = async (data, adminId) => {
 
   const programId = result.insertId;
   console.log("NEW PROGRAM ID:", programId);
+
+console.log("PUBLIC TESTCASES RECEIVED:", publicTestcases);
+console.log("PRIVATE TESTCASES RECEIVED:", privateTestcases);
+
   // 2️⃣ Insert testcases
 
   let order = 1;

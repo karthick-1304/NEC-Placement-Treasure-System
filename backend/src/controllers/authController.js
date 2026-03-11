@@ -33,13 +33,26 @@ const sendTokenResponse = (user, statusCode, res) => {
 const getProfileData = async (userId, role) => {
   if (role === 'student') {
     const rows = await query(
-      `SELECT sp.dept_id, sp.batch_year, sp.reg_no, sp.global_rank, sp.total_score,
-              d.dept_code, d.dept_name, sp.programs_solved
-       FROM student_profiles sp
-       JOIN depts d ON sp.dept_id = d.dept_id
-       WHERE sp.user_id = ?`,
-      [userId]
-    );
+     `SELECT 
+      sp.dept_id,
+      sp.batch_year,
+      sp.reg_no,
+      sp.total_score,
+      sp.programs_solved,
+      d.dept_code,
+      d.dept_name,
+
+      (
+        SELECT COUNT(*) + 1
+        FROM student_profiles
+        WHERE total_score > sp.total_score
+      ) AS global_rank
+
+   FROM student_profiles sp
+   JOIN depts d ON sp.dept_id = d.dept_id
+   WHERE sp.user_id = ?`,
+    [userId]
+);
     return rows[0] || null;
   }
 
@@ -224,18 +237,23 @@ export const verifyOTPAndResetPassword = catchAsync(async (req, res, next) => {
   });
 });
 // GET /api/auth/me
-export const getMe = catchAsync(async (req, res, next) => {
-  const profileData = await getProfileData(req.user.user_id, req.user.role);
+export const getMe = catchAsync(async (req, res) => {
+
+  const userId = req.user.user_id;
+  const role   = req.user.role;
+
+  const profileData = await getProfileData(userId, role);
 
   res.status(200).json({
-    status: 'success',
+    status: "success",
     data: {
       user: {
         ...req.user,
-        profile: profileData,
-      },
-    },
+        profile: profileData
+      }
+    }
   });
+
 });
 
 // POST /api/auth/logout
