@@ -41,7 +41,12 @@ export const getLeaderboardStudents = async (options = {}) => {
       sp.batch_year,
       sp.total_score,
       sp.programs_solved,
-      sp.global_rank,
+      RANK() OVER (
+      ORDER BY
+      sp.total_score DESC,
+      sp.programs_solved DESC,
+      sp.updated_at ASC
+      ) AS global_rank,
       d.dept_name
     FROM student_profiles sp
     JOIN users u ON sp.user_id = u.user_id
@@ -78,7 +83,12 @@ export const getTopStudents = async (limit = 10) => {
       u.full_name,
       sp.total_score,
       sp.programs_solved,
-      sp.global_rank
+      RANK() OVER (
+      ORDER BY
+      sp.total_score DESC,
+      sp.programs_solved DESC,
+      sp.updated_at ASC
+     ) AS global_rank
     FROM student_profiles sp
     JOIN users u ON sp.user_id = u.user_id
     WHERE u.role = 'student'
