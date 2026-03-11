@@ -22,6 +22,14 @@ function AdminStudentsPage() {
     batch_year: ""
   });
   const [successMsg, setSuccessMsg] = useState("");
+  const DEPT_MAP = {
+  1: "CSE",
+  2: "IT",
+  3: "ECE",
+  4: "EEE",
+  5: "MECH",
+  6: "AIDS"
+};
 
   useEffect(() => {
     const loadStudents = async () => {
@@ -163,6 +171,7 @@ const handleSubmit = async (e) => {
     <option value="3">ECE</option>
     <option value="4">EEE</option>
     <option value="5">MECH</option>
+    <option value="6">AIDS</option>
   </select>
 
   <input
@@ -204,7 +213,7 @@ const handleSubmit = async (e) => {
     <div className="text-sm">
       <p className="font-medium">{s.full_name}</p>
       <p className="text-dark-400">
-        {s.email} • Dept {s.dept_id} • Year {s.batch_year}
+        {s.email} • {DEPT_MAP[s.dept_id]} • Year {s.batch_year}
       </p>
     </div>
 
