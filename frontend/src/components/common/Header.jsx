@@ -8,7 +8,7 @@ import Spinner from './Spinner.jsx';
 const NAV_LINKS = [
   { label: 'Home',             to: '/',           roles: ['student','staff','dept_head','admin'] },
   { label: 'Leaderboard',      to: '/leaderboard',roles: ['student','staff','dept_head','admin'] }, 
-  { label: 'Progress Explorer',to: '/progress',   roles: ['student','staff','dept_head','admin'] },
+  { label: 'Progress Explorer',to: '/progress',   roles: ['student','staff','dept_head'] },
 ];
 
 export default function Header() {
@@ -263,17 +263,19 @@ export default function Header() {
     </Link>
   </>
 )}
-<Link
-  to="/profile"
-  onClick={() => setOpen(false)}
-  className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-dark-300 hover:text-white hover:bg-dark-700/80 transition-all text-sm"
->
-  <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
-      d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-  </svg>
-  View Profile
-</Link>
+{role !== 'admin' && (
+  <Link
+    to="/profile"
+    onClick={() => setOpen(false)}
+    className="flex items-center gap-3 px-3 py-2.5 rounded-xl text-dark-300 hover:text-white hover:bg-dark-700/80 transition-all text-sm"
+  >
+    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2}
+        d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+    </svg>
+    View Profile
+  </Link>
+)}
 
 <button
   onClick={handleLogout}
