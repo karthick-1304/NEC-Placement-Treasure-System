@@ -49,7 +49,20 @@ export const createProgramSchema = Joi.object({
   private_testcase_count: Joi.number()
     .integer()
     .min(0)
-    .default(0)
+    .default(0),
+  publicTestcases: Joi.array().items(
+  Joi.object({
+    input: Joi.string().required(),
+    output: Joi.string().required()
+  })
+).default([]),
+
+privateTestcases: Joi.array().items(
+  Joi.object({
+    input: Joi.string().required(),
+    output: Joi.string().required()
+  })
+).default([])
 });
 
 
@@ -91,8 +104,8 @@ export const updateProgramSchema = Joi.object({
     .min(0),
 
   private_testcase_count: Joi.number()
-    .integer()
-    .min(0)
+  .integer()
+  .min(0)
 }).min(1);
 
 
