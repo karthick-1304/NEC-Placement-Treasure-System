@@ -7,28 +7,29 @@ export default function ActivityHeatmap() {
 
   const [data, setData] = useState([]);
 
+  // format date safely (avoids timezone bug)
+  const formatDate = (d) => d.toLocaleDateString("en-CA");
+
+  const endDate = new Date();
+  const startDate = new Date();
+  startDate.setFullYear(endDate.getFullYear() - 1);
+
   useEffect(() => {
 
     const fetchHeatmap = async () => {
 
-      const end = new Date();
-      const start = new Date();
-
-      // 365 days like GitHub
-      start.setFullYear(end.getFullYear() - 1);
-
-      const startDate = start.toISOString().split("T")[0];
-      const endDate = end.toISOString().split("T")[0];
-
       try {
 
+        const start = formatDate(startDate);
+        const end = formatDate(endDate);
+
         const res = await axiosInstance.get(
-          `/stats/heatmap?start=${startDate}&end=${endDate}`
+          `/stats/heatmap?start=${start}&end=${end}`
         );
 
         const formatted = (res.data.data || []).map((item) => ({
           date: item.date,
-          count: item.count || 0,
+          count: item.count || 0
         }));
 
         setData(formatted);
@@ -42,10 +43,6 @@ export default function ActivityHeatmap() {
     fetchHeatmap();
 
   }, []);
-
-  const endDate = new Date();
-  const startDate = new Date();
-  startDate.setFullYear(endDate.getFullYear() - 1);
 
   return (
 
@@ -75,6 +72,16 @@ export default function ActivityHeatmap() {
           values={data}
           gutterSize={3}
           showWeekdayLabels
+
+          /* Tooltip showing date and solved count */
+          titleForValue={(value) => {
+            if (!value || !value.date) return "No activity";
+
+            const date = new Date(value.date);
+
+            return `${date.toDateString()} : ${value.count} problems solved`;
+          }}
+
           classForValue={(value) => {
 
             if (!value || value.count === 0) return "color-empty";
@@ -83,6 +90,7 @@ export default function ActivityHeatmap() {
             if (value.count < 6) return "color-scale-3";
 
             return "color-scale-4";
+
           }}
         />
 
@@ -117,8 +125,6 @@ export default function ActivityHeatmap() {
   width: 100%;
 }
 
-/* cells */
-
 .react-calendar-heatmap rect {
   width: 11px;
   height: 11px;
@@ -126,26 +132,18 @@ export default function ActivityHeatmap() {
   ry: 2;
 }
 
-/* spacing between cells */
-
 .react-calendar-heatmap .react-calendar-heatmap-day {
   shape-rendering: crispEdges;
 }
-
-/* weekday labels */
 
 .react-calendar-heatmap text {
   fill: #6b7280;
   font-size: 9px;
 }
 
-/* empty cell */
-
 .react-calendar-heatmap .color-empty {
   fill: #1f1f25;
 }
-
-/* activity levels */
 
 .react-calendar-heatmap .color-scale-1 {
   fill: #312e81;
@@ -163,14 +161,10 @@ export default function ActivityHeatmap() {
   fill: #a5b4fc;
 }
 
-/* month labels */
-
 .react-calendar-heatmap .react-calendar-heatmap-month-label {
   fill: #6b7280;
   font-size: 10px;
 }
-
-/* tooltip hover effect */
 
 .react-calendar-heatmap rect:hover {
   stroke: #fff;
@@ -178,7 +172,7 @@ export default function ActivityHeatmap() {
 }
 
 `}
-</style>
+      </style>
 
     </div>
 
