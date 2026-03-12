@@ -15,6 +15,7 @@ import profileRoutes from '../src/routes/user/profileRoutes.js';
 import studentFeedbackRoutes from "./routes/user/studentFeedbackRoutes.js";
 import adminFeedbackRoutes from "./routes/admin/adminFeedbackRoutes.js";
 import adminProgramRoutes from "./routes/admin/adminProgramRoutes.js";
+import adminBulkUploadRoutes from "./routes/admin/adminBulkUploadRoutes.js";
 import streakRoutes from "./routes/user/streakRoutes.js";
 import adminRoutes from "./routes/admin/adminRoutes.js";
 import solvedRoutes from "./routes/user/solvedRoutes.js";
@@ -80,6 +81,7 @@ app.use("/api/progress", weeklyGoalRoutes);
 app.use("/api/stats", statsRoutes);
 app.use("/api/admin/programs", adminProgramRoutes);
 app.use("/api/admin", adminFeedbackRoutes);
+app.use("/api/admin/bulk-upload", adminBulkUploadRoutes);
 app.use("/api/solved", solvedRoutes);
 app.use("/api/admin", adminRoutes);
 app.use(

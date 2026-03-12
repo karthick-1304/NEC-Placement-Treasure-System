@@ -12,6 +12,7 @@ function AdminProgramsPage() {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
+  const [errors, setErrors] = useState({});
   const PAGE_SIZE = 10;
 
   const [form, setForm] = useState({
@@ -197,12 +198,36 @@ function AdminProgramsPage() {
 </select>
 
 <textarea
-  rows="4"
-  className="bg-dark-900 border border-dark-600 rounded-lg px-3 py-2 md:col-span-3"
-  placeholder="Description"
-  value={form.description}
-  onChange={(e) => setForm({ ...form, description: e.target.value })}
+rows="4"
+className={`bg-dark-900 border rounded-lg px-3 py-2 md:col-span-3 ${
+errors.description ? "border-rose-500" : "border-dark-600"
+}`}
+placeholder="Description"
+value={form.description}
+onChange={(e) => {
+const value = e.target.value;
+
+setForm({ ...form, description: value });
+
+if (value.trim().length < 20) {
+setErrors({
+...errors,
+description: "Description must be at least 20 characters",
+});
+} else {
+setErrors({
+...errors,
+description: "",
+});
+}
+}}
 />
+
+{errors.description && (
+<p className="text-rose-400 text-xs md:col-span-3">
+{errors.description}
+</p>
+)}
 
 <input
   className="bg-dark-900 border border-dark-600 rounded-lg px-3 py-2"
