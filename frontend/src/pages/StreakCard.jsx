@@ -3,7 +3,10 @@ import axiosInstance from "../api/axiosInstance";
 
 export default function StreakCard() {
 
-  const [streak, setStreak] = useState(null);
+  const [streak, setStreak] = useState({
+    current: 0,
+    longest: 0
+  });
 
   useEffect(() => {
 
@@ -25,23 +28,70 @@ export default function StreakCard() {
 
   }, []);
 
-  if (!streak) return null;
+  const days = ["M", "T", "W", "T", "F", "S", "S"];
 
   return (
 
-    <div className="bg-dark-800 p-6 rounded-lg shadow text-center">
+    <div className="bg-[#0c0d17] border border-zinc-800 rounded-2xl p-6">
 
-      <p className="text-sm text-gray-400 mb-1">
-        Coding Streak
-      </p>
+      {/* HEADER */}
 
-      <p className="text-xl font-bold">
-        🔥 {streak.currentStreak} Days
-      </p>
+      <div className="flex justify-between items-start mb-6">
 
-      <p className="text-sm text-gray-400 mt-2">
-        🏆 Longest: {streak.longestStreak} Days
-      </p>
+        <div>
+
+          <div className="flex items-center gap-2 text-zinc-400 text-sm">
+
+            <span className="text-orange-400 text-lg">🔥</span>
+
+            Current Streak
+
+          </div>
+
+          <div className="flex items-end gap-2 mt-2">
+
+            <span className="text-4xl font-bold">
+              {streak.current}
+            </span>
+
+            <span className="text-zinc-500 text-sm mb-1">
+              days
+            </span>
+
+          </div>
+
+        </div>
+
+        <div className="text-right">
+
+          <p className="text-zinc-500 text-sm">
+            Longest
+          </p>
+
+          <p className="text-lg font-semibold">
+            {streak.longest} days
+          </p>
+
+        </div>
+
+      </div>
+
+      {/* WEEK ROW */}
+
+      <div className="flex justify-between text-xs text-zinc-500 mt-10">
+
+        {days.map((day, i) => (
+
+          <span
+            key={i}
+            className={i === 6 ? "text-amber-400" : ""}
+          >
+            {day}
+          </span>
+
+        ))}
+
+      </div>
 
     </div>
 

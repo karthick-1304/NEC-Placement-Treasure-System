@@ -1,106 +1,121 @@
 import { useEffect, useState } from "react";
 import axiosInstance from "../api/axiosInstance";
+import { Link } from "react-router-dom";
 
-export default function SolvedProblemsPage() {
+export default function RecentSolves() {
 
-  const [programs, setPrograms] = useState([]);
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
+  const [solves, setSolves] = useState([]);
 
   useEffect(() => {
 
-    const fetchSolved = async () => {
+    const fetchRecent = async () => {
 
       try {
 
-        const res = await axiosInstance.get(`/solved?page=${page}&limit=10`);
+        const res = await axiosInstance.get("/solved?limit=5&page=1");
 
-        setPrograms(res.data.data.programs);
-        setTotalPages(res.data.data.pagination.totalPages);
+        setSolves(res.data.data.programs);
 
       } catch (err) {
-        console.error("Solved fetch error:", err);
+        console.error("Recent solves error:", err);
       }
 
     };
 
-    fetchSolved();
+    fetchRecent();
 
-  }, [page]);
-
+  }, []);
 
   return (
 
-    <div className="max-w-screen-lg mx-auto text-white p-6">
+    <div className="bg-[#0c0d17] border border-zinc-800 rounded-2xl p-6">
 
-      <h1 className="text-2xl font-bold mb-6">
-        Solved Problems
-      </h1>
+      {/* HEADER */}
 
-      <table className="w-full border-collapse">
+      <div className="flex items-center justify-between mb-6">
 
-        <thead>
+        <h2 className="text-lg font-semibold text-white">
+          Recent Solves
+        </h2>
 
-          <tr className="border-b border-gray-700">
-
-            <th className="p-3 text-left">Title</th>
-            <th className="p-3 text-left">Difficulty</th>
-            <th className="p-3 text-left">Solved At</th>
-
-          </tr>
-
-        </thead>
-
-        <tbody>
-
-          {programs.map((p) => (
-
-            <tr key={p.prog_id} className="border-b border-gray-800">
-
-              <td className="p-3">{p.title}</td>
-
-              <td className="p-3 capitalize">{p.difficulty}</td>
-
-              <td className="p-3">
-                {new Date(p.solved_at).toLocaleDateString()}
-              </td>
-
-            </tr>
-
-          ))}
-
-        </tbody>
-
-      </table>
-
-
-      {/* Pagination */}
-
-      <div className="flex gap-3 mt-6">
-
-        <button
-          onClick={() => setPage(page - 1)}
-          disabled={page === 1}
-          className="px-3 py-1 bg-gray-700 rounded"
+        <Link
+          to="/solved"
+          className="text-sm text-indigo-400 hover:text-indigo-300"
         >
-          Prev
-        </button>
+          View all →
+        </Link>
 
-        <span>
-          Page {page} / {totalPages}
-        </span>
+      </div>
 
-        <button
-          onClick={() => setPage(page + 1)}
-          disabled={page === totalPages}
-          className="px-3 py-1 bg-gray-700 rounded"
-        >
-          Next
-        </button>
+      {/* LIST */}
+
+      <div className="space-y-4">
+
+        {solves.map((p) => (
+
+          <div
+            key={p.prog_id}
+            className="flex items-center justify-between bg-zinc-900/30 border border-zinc-800 rounded-xl px-4 py-4 hover:bg-zinc-900/50 transition"
+          >
+
+            {/* LEFT */}
+
+            <div className="flex items-center gap-3">
+
+              <div
+                className={`w-1 h-10 rounded ${
+                  p.difficulty === "Easy"
+                    ? "bg-emerald-400"
+                    : p.difficulty === "Medium"
+                    ? "bg-amber-400"
+                    : "bg-rose-400"
+                }`}
+              ></div>
+
+              <div>
+
+                <div className="font-medium text-white">
+                  {p.title}
+                </div>
+
+                <div className="text-xs text-zinc-500 mt-1">
+                  {new Date(p.solved_at).toLocaleDateString()}
+                </div>
+
+              </div>
+
+            </div>
+
+            {/* RIGHT */}
+
+            <div className="flex items-center gap-3">
+
+              <span
+                className={`px-3 py-1 text-xs rounded-full font-medium ${
+                  p.difficulty === "Easy"
+                    ? "bg-emerald-500/20 text-emerald-400"
+                    : p.difficulty === "Medium"
+                    ? "bg-amber-500/20 text-amber-400"
+                    : "bg-rose-500/20 text-rose-400"
+                }`}
+              >
+                {p.difficulty}
+              </span>
+
+              <span className="text-emerald-400 text-lg">
+                ✓
+              </span>
+
+            </div>
+
+          </div>
+
+        ))}
 
       </div>
 
     </div>
 
   );
+
 }

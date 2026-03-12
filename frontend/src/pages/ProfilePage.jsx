@@ -22,7 +22,7 @@ export default function ProfilePage() {
         setRecentSolves(res.data.data.recent_solves);
 
       } catch (err) {
-        console.error("Profile fetch error:", err);
+        console.error(err);
       }
 
     };
@@ -33,7 +33,7 @@ export default function ProfilePage() {
 
   if (!profile) {
     return (
-      <div className="flex justify-center items-center h-screen text-white">
+      <div className="min-h-screen flex items-center justify-center text-zinc-400">
         Loading profile...
       </div>
     );
@@ -47,186 +47,202 @@ export default function ProfilePage() {
 
   return (
 
-    <div className="max-w-6xl mx-auto px-6 py-10 text-white">
+    <div className="min-h-screen bg-[#05060f] text-white">
 
-      {/* HEADER */}
-      <div className="bg-gradient-to-r from-indigo-600 to-purple-700 p-8 rounded-xl shadow-xl mb-10 flex items-center gap-6">
+      {/* grid background */}
+      <div className="absolute inset-0 bg-[linear-gradient(#1f1f1f_1px,transparent_1px),linear-gradient(90deg,#1f1f1f_1px,transparent_1px)] bg-[size:40px_40px] opacity-20"></div>
 
-        <div className="w-20 h-20 rounded-full bg-black/30 flex items-center justify-center text-3xl font-bold">
-          {profile.full_name?.charAt(0)}
+      <div className="relative max-w-7xl mx-auto px-6 py-12">
+
+        {/* PROFILE HEADER */}
+
+        <div className="flex items-center gap-6 mb-10">
+
+          <div className="w-24 h-24 rounded-full bg-indigo-600/30 flex items-center justify-center text-4xl font-bold shadow-[0_0_40px_rgba(99,102,241,0.5)]">
+            {profile.full_name?.charAt(0)}
+          </div>
+
+          <div>
+
+            <h1 className="text-3xl font-bold">
+              {profile.full_name}
+            </h1>
+
+            <div className="flex gap-4 text-sm text-zinc-400 mt-2">
+
+              <span className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                Online
+              </span>
+
+              <span>{profile.email}</span>
+
+              <span className="bg-zinc-800 px-3 py-1 rounded-lg text-xs">
+                {profile.reg_no}
+              </span>
+
+            </div>
+
+          </div>
+
         </div>
 
-        <div>
-          <h1 className="text-2xl font-bold">{profile.full_name}</h1>
-          <p className="text-gray-200 text-sm">{profile.email}</p>
-          <p className="text-gray-300 text-sm">Reg No: {profile.reg_no}</p>
-        </div>
+        {/* STATS */}
 
-      </div>
+        <div className="grid md:grid-cols-3 gap-6 mb-10">
 
-      {/* PERFORMANCE */}
-      <div className="mb-10">
-
-        <h2 className="text-xl font-semibold mb-4">Performance</h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-
-          <ProfileCard
+          <StatCard
             label="Problems Solved"
             value={profile.programs_solved}
           />
 
-          <ProfileCard
+          <StatCard
             label="Total Score"
             value={profile.total_score}
           />
 
-          <ProfileCard
+          <StatCard
             label="Global Rank"
-            value={profile.global_rank}
+            value={`#${profile.global_rank}`}
           />
 
         </div>
 
-      </div>
+        {/* STREAK + LEVEL */}
 
-      {/* STREAK */}
-      <div className="mb-10">
-        <h2 className="text-xl font-semibold mb-4">
-          Coding Streak
-        </h2>
+        <div className="grid md:grid-cols-2 gap-6 mb-10">
 
-        <div className="max-w-sm">
           <StreakCard />
-        </div>
-      </div>
 
-      {/* ACTIVITY HEATMAP */}
-      <div className="mb-10">
+          <div className="bg-[#0c0d17] border border-zinc-800 rounded-2xl p-6">
 
-        <h2 className="text-xl font-semibold mb-4">
-          Coding Activity
-        </h2>
+            <div className="flex justify-between mb-4 text-sm text-zinc-400">
+              <span>Current Level</span>
+              <span>Next Level</span>
+            </div>
 
-       <div className="bg-dark-800 p-6 rounded-xl shadow-lg overflow-x-auto">
-           <ActivityHeatmap />
-       </div>
-
-      </div>
-
-      {/* STATS ROW */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-10">
-
-        <div>
-          <h2 className="text-xl font-semibold mb-4">
-            Difficulty Stats
-          </h2>
-
-          <DifficultyStats />
-        </div>
-
-        <div>
-
-          <h2 className="text-xl font-semibold mb-4">
-            Skill Level
-          </h2>
-
-          <div className="bg-dark-800 p-6 rounded-xl text-center shadow-lg">
-
-            <p className="text-sm text-gray-400">
-              Current Level
-            </p>
-
-            <p className="text-3xl font-bold mt-2">
+            <h2 className="text-3xl font-bold mb-6">
               {level}
-            </p>
+            </h2>
+
+            <div className="flex justify-between text-xs text-zinc-500 mb-2">
+              <span>{solved} solved</span>
+              <span>150 needed</span>
+            </div>
+
+            <div className="w-full bg-zinc-800 rounded-full h-2">
+              <div
+                className="bg-indigo-500 h-2 rounded-full"
+                style={{ width: `${Math.min((solved / 150) * 100, 100)}%` }}
+              />
+            </div>
 
           </div>
 
         </div>
 
-      </div>
+        {/* HEATMAP */}
 
-      {/* RECENT SOLVES */}
-      <div className="mb-10">
-
-        <div className="flex justify-between items-center mb-4">
-
-          <h2 className="text-xl font-semibold">
-            Recent Solved Problems
-          </h2>
-
-          <Link
-            to="/solved"
-            className="text-indigo-400 text-sm hover:underline"
-          >
-            View Full History →
-          </Link>
-
+        <div className="mb-10">
+          <ActivityHeatmap />
         </div>
 
-        {recentSolves.length === 0 ? (
+        {/* DIFFICULTY + RECENT */}
 
-          <p className="text-gray-400">
-            No problems solved yet
-          </p>
+        <div className="grid md:grid-cols-3 gap-6">
 
-        ) : (
+          <DifficultyStats />
 
-          <div className="space-y-3">
+          {/* RECENT SOLVES */}
 
-            {recentSolves.map((prob) => (
+          <div className="md:col-span-2 bg-[#0c0d17] border border-zinc-800 rounded-2xl p-6">
 
-              <div
-                key={prob.prog_id}
-                className="bg-dark-800 p-4 rounded-lg shadow flex justify-between items-center hover:bg-dark-700 transition"
+            <div className="flex justify-between mb-6">
+
+              <h2 className="text-lg font-semibold">
+                Recent Solves
+              </h2>
+
+              <Link
+                to="/solved"
+                className="text-indigo-400 text-sm hover:text-indigo-300"
               >
+                View all →
+              </Link>
 
-                <div>
+            </div>
 
-                  <p className="font-medium">
-                    {prob.title}
-                  </p>
+            <div className="space-y-4">
 
-                  <p className="text-xs text-gray-400">
-                    Solved on {new Date(prob.solved_at).toLocaleDateString()}
-                  </p>
+              {recentSolves.map((p) => (
+
+                <div
+                  key={p.prog_id}
+                  className="flex justify-between items-center bg-zinc-900/50 p-4 rounded-xl border border-zinc-800"
+                >
+
+                  <div>
+
+                    <p className="font-medium">
+                      {p.title}
+                    </p>
+
+                    <p className="text-xs text-zinc-500">
+                      {new Date(p.solved_at).toLocaleDateString()}
+                    </p>
+
+                  </div>
+
+                  <span
+                    className={`px-3 py-1 text-xs rounded-full ${
+                      p.difficulty === "Easy"
+                        ? "bg-emerald-500/20 text-emerald-400"
+                        : p.difficulty === "Medium"
+                        ? "bg-amber-500/20 text-amber-400"
+                        : "bg-rose-500/20 text-rose-400"
+                    }`}
+                  >
+                    {p.difficulty}
+                  </span>
 
                 </div>
 
-                <span className="text-green-400 text-sm font-medium">
-                  {prob.difficulty}
-                </span>
+              ))}
 
-              </div>
-
-            ))}
+            </div>
 
           </div>
 
-        )}
+        </div>
 
       </div>
 
     </div>
 
   );
+
 }
 
 
-function ProfileCard({ label, value }) {
+function StatCard({ label, value }) {
 
   return (
 
-    <div className="bg-dark-800 p-6 rounded-xl shadow-lg hover:shadow-xl transition">
+    <div className="bg-[#0c0d17] border border-zinc-800 rounded-2xl p-6 flex justify-between items-center">
 
-      <p className="text-sm text-gray-400">
-        {label}
-      </p>
+      <div>
 
-      <p className="text-2xl font-bold mt-1">
-        {value}
-      </p>
+        <p className="text-zinc-400 text-sm">
+          {label}
+        </p>
+
+        <p className="text-2xl font-bold mt-1">
+          {value}
+        </p>
+
+      </div>
+
+      <div className="w-10 h-10 bg-black rounded-lg border border-zinc-800"></div>
 
     </div>
 
