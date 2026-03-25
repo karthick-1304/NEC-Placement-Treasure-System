@@ -16,11 +16,15 @@ const SCORE_MAP = {
  * @returns {number}
  */
 export const calculateScore = (difficulty) => {
-  if (!difficulty) return 0;
 
-  const normalized = String(difficulty).toLowerCase().trim();
+  if (difficulty === "easy") return 5;
 
-  return SCORE_MAP[normalized] || 0;
+  if (difficulty === "medium") return 15;
+
+  if (difficulty === "hard") return 30;
+
+  return 0;
+
 };
 
 /**

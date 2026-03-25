@@ -34,13 +34,13 @@ export const getUserStreak = catchAsync(async (req, res) => {
 
     const diff = (prev - curr) / (1000 * 60 * 60 * 24);
 
-    if (diff === 1) {
-      temp++;
-      if (i === current) current++;
-    } else {
-      longest = Math.max(longest, temp);
-      temp = 1;
-    }
+   if (diff === 1) {
+  temp++;
+  current++;
+} else {
+  longest = Math.max(longest, temp);
+  temp = 1;
+}
 
   }
 
