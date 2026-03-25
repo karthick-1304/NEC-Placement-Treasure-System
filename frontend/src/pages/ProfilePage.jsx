@@ -4,11 +4,13 @@ import DifficultyStats from "./DifficultyStats.jsx";
 import ActivityHeatmap from "./ActivityHeatmap.jsx";
 import StreakCard from "./StreakCard.jsx";
 import { Link } from "react-router-dom";
+import useAuth from "../hooks/useAuth.js";
 
 export default function ProfilePage() {
 
   const [profile, setProfile] = useState(null);
   const [recentSolves, setRecentSolves] = useState([]);
+  const { medals } = useAuth();
 
   useEffect(() => {
 
@@ -103,7 +105,11 @@ export default function ProfilePage() {
 
           <StatCard
             label="Global Rank"
-            value={`#${profile.global_rank}`}
+            value={
+  medals?.global_rank
+    ? `#${medals.global_rank}`
+    : "N/A"
+}
           />
 
         </div>
